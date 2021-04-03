@@ -28,18 +28,18 @@ const tripContentContainer = document.querySelector(Selector.CONTENT);
 render(tripMainContainer, createTripInfoTemplate(), 'afterbegin');
 const tripInfoContainer = tripMainContainer.querySelector(Selector.INFO);
 
-render(tripInfoContainer, createTripRouteTemplate(), 'beforeend');
-render(tripInfoContainer, createTripCostTemplate(), 'beforeend');
+render(tripInfoContainer, createTripRouteTemplate());
+render(tripInfoContainer, createTripCostTemplate());
 
-render(tripMainContainer, createAddBtnTemplate(), 'beforeend');
-render(tripMenuContainer, createMenuTemplate(), 'beforeend');
-render(tripFilterContainer, createFilterTemplate(), 'beforeend');
-render(tripContentContainer, createSortingTemplate(), 'beforeend');
-render(tripContentContainer, createPointListTemplate(), 'beforeend');
+render(tripMainContainer, createAddBtnTemplate());
+render(tripMenuContainer, createMenuTemplate());
+render(tripFilterContainer, createFilterTemplate());
+render(tripContentContainer, createSortingTemplate());
+render(tripContentContainer, createPointListTemplate());
 const pointsContainer = tripContentContainer.querySelector(Selector.POINT_LIST);
 
-render(pointsContainer, createEditPointTemplate(), 'beforeend');
+render(pointsContainer, createEditPointTemplate());
 
 for (let i = 0; i < POINT_COUNT; i++) {
-  render(pointsContainer, createPointTemplate(), 'beforeend');
+  render(pointsContainer, createPointTemplate());
 }
