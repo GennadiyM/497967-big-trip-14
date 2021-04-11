@@ -25,7 +25,7 @@ const Selector = {
 
 const destinations = generateDestinations();
 const offers = generateOffers();
-const [editablePoint, ...otherPoints] = generatePoints(offers);
+const [editablePoint, ...otherPoints] = generatePoints(offers).slice(0, POINT_COUNT);
 
 const tripMainContainer = document.querySelector(Selector.MAIN);
 const tripMenuContainer = tripMainContainer.querySelector(Selector.MENU);
@@ -43,10 +43,7 @@ render(tripMenuContainer, createMenuTemplate());
 render(tripFilterContainer, createFilterTemplate());
 render(tripContentContainer, createSortingTemplate());
 render(tripContentContainer, createPointListTemplate());
+
 const pointsContainer = tripContentContainer.querySelector(Selector.POINT_LIST);
-
 render(pointsContainer, createEditPointTemplate(editablePoint, destinations, offers));
-
-for (let i = 1; i < POINT_COUNT; i++) {
-  render(pointsContainer, createPointTemplate(otherPoints[i]));
-}
+otherPoints.forEach((point) => render(pointsContainer, createPointTemplate(point)));
