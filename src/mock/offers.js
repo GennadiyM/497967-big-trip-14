@@ -11,7 +11,7 @@ const CountOffer = {
   MAX: 5,
 };
 
-const generateOffer = function(title) {
+const generateOffer = (title) => {
   return {
     title,
     price: getRandomInteger(PriceOffer.MIN, PriceOffer.MAX),
@@ -26,7 +26,7 @@ const generateOffersListInType = (type) => {
   };
 };
 
-export const generateOffers = function () {
+export const generateOffers = () => {
   return TYPE_NAMES.map((typeName) => {
     return generateOffersListInType(typeName);
   });

@@ -4,7 +4,7 @@ import {TYPE_NAMES, DESTINATION_NAMES} from '../constants.js';
 export const createEditPointTemplate = (point, destinationsList, offersList) => {
   const {type, destination, dateFrom, dateTo, basePrice, offers, id} = point;
 
-  const getRequiredValues = function(requiredKey, arrayToSearch, requiredDataName, example) {
+  const getRequiredValues = (requiredKey, arrayToSearch, requiredDataName, example) => {
     let requiredValues = false;
 
     for(const item of arrayToSearch) {
@@ -62,10 +62,10 @@ export const createEditPointTemplate = (point, destinationsList, offersList) => 
   };
 
   const getDestination = () => {
-
     const htmlDescription = actualDestinationDescription !== '' ? `
       <p class="event__destination-description">${actualDestinationDescription}</p>
     ` : '';
+
     const htmlImages = actualDestinationPictures.length === 0 ? '' : `<div class="event__photos-container">
         <div class="event__photos-tape">
             ${actualDestinationPictures.map((image) => `<img class="event__photo" src="${image.src}" alt="${image.description}">`).join('')}
@@ -96,9 +96,7 @@ export const createEditPointTemplate = (point, destinationsList, offersList) => 
           <div class="event__type-list">
             <fieldset class="event__type-group">
               <legend class="visually-hidden">Event type</legend>
-
               ${getTypePointControls()}
-
             </fieldset>
           </div>
         </div>
@@ -137,7 +135,6 @@ export const createEditPointTemplate = (point, destinationsList, offersList) => 
       </header>
       <section class="event__details">
         ${getOffers()}
-
         ${getDestination()}
       </section>
     </form>

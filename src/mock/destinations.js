@@ -15,11 +15,11 @@ const CountDescriptionSentences = {
 
 const allDescriptions = DESTINATION_DESCRIPTION.split(/\.\s*/);
 
-const getDesctinationDescription = function () {
+const getDesctinationDescription = () => {
   return DESTINATION_DESCRIPTION.split(/\.\s*/).slice(CountDescriptionSentences.MIN, CountDescriptionSentences.MAX).map((item) => item + '.').join(' ');
 };
 
-const getPictures = function () {
+const getPictures = () => {
   return new Array(getRandomInteger(CountImages.MIN, CountImages.MAX)).fill().map(() => {
     return {
       'src': `http://picsum.photos/248/152?r=${getRandomInteger(1, 100)}`,
