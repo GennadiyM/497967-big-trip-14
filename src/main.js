@@ -10,6 +10,9 @@ import {createPointListTemplate} from './view/point-list.js';
 import {createEditPointTemplate} from './view/edit-point.js';
 import {createPointTemplate} from './view/point.js';
 import {render} from './utils.js';
+import {generatePoints} from './mock/points.js';
+import {generateDestinations} from './mock/destinations.js';
+import {generateOffers} from './mock/offers.js';
 
 const Selector = {
   MAIN: '.trip-main',
@@ -19,6 +22,10 @@ const Selector = {
   CONTENT: '.trip-events',
   POINT_LIST: '.trip-events__list',
 };
+
+const destinations = generateDestinations();
+const offers = generateOffers();
+const [editablePoint, ...otherPoints] = generatePoints(offers).slice(0, POINT_COUNT);
 
 const tripMainContainer = document.querySelector(Selector.MAIN);
 const tripMenuContainer = tripMainContainer.querySelector(Selector.MENU);
@@ -36,10 +43,7 @@ render(tripMenuContainer, createMenuTemplate());
 render(tripFilterContainer, createFilterTemplate());
 render(tripContentContainer, createSortingTemplate());
 render(tripContentContainer, createPointListTemplate());
+
 const pointsContainer = tripContentContainer.querySelector(Selector.POINT_LIST);
-
-render(pointsContainer, createEditPointTemplate());
-
-for (let i = 0; i < POINT_COUNT; i++) {
-  render(pointsContainer, createPointTemplate());
-}
+render(pointsContainer, createEditPointTemplate(editablePoint, destinations, offers));
+otherPoints.forEach((point) => render(pointsContainer, createPointTemplate(point)));
