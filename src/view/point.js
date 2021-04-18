@@ -1,10 +1,11 @@
 import dayjs from 'dayjs';
+import {createElement} from '../utils.js';
 
 const Class = {
   BTN_FAVORITE_ACTIVE: 'event__favorite-btn--active',
 };
 
-export const createPointTemplate = (point) => {
+const createPointTemplate = (point) => {
   const {type, destination, dateFrom, dateTo, basePrice, offers, isFavorite} = point;
 
   const favoriteClassName = isFavorite ? Class.BTN_FAVORITE_ACTIVE : '';
@@ -85,3 +86,26 @@ export const createPointTemplate = (point) => {
     </div>
   </li>`;
 };
+
+export default class Point {
+  constructor(point) {
+    this._point = point;
+    this._element = null;
+  }
+
+  getTemplate() {
+    return createPointTemplate(this._point);
+  }
+
+  getElement() {
+    if (!this._element) {
+      this._element = createElement(this.getTemplate());
+    }
+
+    return this._element;
+  }
+
+  removeElement() {
+    this._element = null;
+  }
+}

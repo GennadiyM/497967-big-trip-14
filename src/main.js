@@ -1,15 +1,15 @@
 import {POINT_COUNT} from './constants.js';
-import {createTripInfoTemplate} from './view/trip-info.js';
-import {createTripRouteTemplate} from './view/trip-route.js';
-import {createTripCostTemplate} from './view/trip-cost.js';
-import {createAddBtnTemplate} from './view/add-btn.js';
-import {createMenuTemplate} from './view/menu.js';
-import {createFilterTemplate} from './view/filter.js';
-import {createSortingTemplate} from './view/sorting.js';
-import {createPointListTemplate} from './view/point-list.js';
-import {createEditPointTemplate} from './view/edit-point.js';
-import {createPointTemplate} from './view/point.js';
-import {render} from './utils.js';
+import TripInfoView from './view/trip-info.js';
+import TripRouteView from './view/trip-route.js';
+import TripCostView from './view/trip-cost.js';
+import AddBtnView from './view/add-btn.js';
+import MenuView from './view/menu.js';
+import FilterView from './view/filter.js';
+import SortingView from './view/sorting.js';
+import PointListView from './view/point-list.js';
+import EditPointView from './view/edit-point.js';
+import PointView from './view/point.js';
+import {RenderPosition, renderElement} from './utils.js';
 import {generatePoints} from './mock/points.js';
 import {generateDestinations} from './mock/destinations.js';
 import {generateOffers} from './mock/offers.js';
@@ -17,33 +17,60 @@ import {generateOffers} from './mock/offers.js';
 const Selector = {
   MAIN: '.trip-main',
   MENU: '.trip-controls__navigation',
-  INFO: '.trip-info',
   FILTER: '.trip-controls__filters',
   CONTENT: '.trip-events',
-  POINT_LIST: '.trip-events__list',
+  FORM_TOGGLE: '.event__rollup-btn',
+  FORM: '.event',
+};
+
+const renderPoint = (container, point, destinations, offers) => {
+  const pointComponent = new PointView(point);
+  const editPointComponent = new EditPointView(point, destinations, offers);
+
+  const replacePointToForm = () => {
+    container.replaceChild(editPointComponent.getElement(), pointComponent.getElement());
+  };
+
+  const replaceFormToPoint = () => {
+    pointListComponent.getElement().replaceChild(pointComponent.getElement(), editPointComponent.getElement());
+  };
+
+  pointComponent.getElement().querySelector(Selector.FORM_TOGGLE).addEventListener('click', () => {
+    replacePointToForm();
+  });
+
+  editPointComponent.getElement().querySelector(Selector.FORM_TOGGLE).addEventListener('click', () => {
+    replaceFormToPoint();
+  });
+
+  editPointComponent.getElement().querySelector(Selector.FORM).addEventListener('submit', (evt) => {
+    evt.preventDefault();
+    replaceFormToPoint();
+  });
+
+  renderElement(container, pointComponent.getElement());
 };
 
 const destinations = generateDestinations();
 const offers = generateOffers();
-const [editablePoint, ...otherPoints] = generatePoints(offers).slice(0, POINT_COUNT);
+const points = generatePoints(offers).slice(0, POINT_COUNT);
 
 const tripMainContainer = document.querySelector(Selector.MAIN);
 const tripMenuContainer = tripMainContainer.querySelector(Selector.MENU);
 const tripFilterContainer = tripMainContainer.querySelector(Selector.FILTER);
 const tripContentContainer = document.querySelector(Selector.CONTENT);
 
-render(tripMainContainer, createTripInfoTemplate(), 'afterbegin');
-const tripInfoContainer = tripMainContainer.querySelector(Selector.INFO);
+const tripInfoComponent = new TripInfoView();
+const pointListComponent = new PointListView();
 
-render(tripInfoContainer, createTripRouteTemplate());
-render(tripInfoContainer, createTripCostTemplate());
+renderElement(tripMainContainer, tripInfoComponent.getElement(), RenderPosition.AFTERBEGIN);
+renderElement(tripInfoComponent.getElement(), new TripRouteView().getElement());
+renderElement(tripInfoComponent.getElement(), new TripCostView().getElement());
 
-render(tripMainContainer, createAddBtnTemplate());
-render(tripMenuContainer, createMenuTemplate());
-render(tripFilterContainer, createFilterTemplate());
-render(tripContentContainer, createSortingTemplate());
-render(tripContentContainer, createPointListTemplate());
+renderElement(tripMainContainer, new AddBtnView().getElement());
+renderElement(tripMenuContainer, new MenuView().getElement());
+renderElement(tripFilterContainer, new FilterView().getElement());
+renderElement(tripContentContainer, new SortingView().getElement());
+renderElement(tripContentContainer, pointListComponent.getElement());
 
-const pointsContainer = tripContentContainer.querySelector(Selector.POINT_LIST);
-render(pointsContainer, createEditPointTemplate(editablePoint, destinations, offers));
-otherPoints.forEach((point) => render(pointsContainer, createPointTemplate(point)));
+points.forEach((point) => renderPoint(pointListComponent.getElement(), point, destinations, offers));

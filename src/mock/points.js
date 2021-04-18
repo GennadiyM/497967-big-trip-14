@@ -1,7 +1,7 @@
 import dayjs from 'dayjs';
+import {nanoid} from 'nanoid';
 import {TYPE_NAMES, DESTINATION_NAMES} from '../constants.js';
 import {getRandomInteger, getDecimalInteger, getRandomElementArray} from '../utils.js';
-import {nanoid} from 'nanoid';
 
 const MAX_COUNT_OFFER_CHECKED = 2;
 
