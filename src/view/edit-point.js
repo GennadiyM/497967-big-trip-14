@@ -1,7 +1,8 @@
 import dayjs from 'dayjs';
 import {TYPE_NAMES, DESTINATION_NAMES} from '../constants.js';
+import {createElement} from '../utils.js';
 
-export const createEditPointTemplate = (point, destinationsList, offersList) => {
+const createEditPointTemplate = (point, destinationsList, offersList) => {
   const {type, destination, dateFrom, dateTo, basePrice, offers, id} = point;
 
   const getRequiredValues = (requiredKey, arrayToSearch, requiredDataName, example) => {
@@ -140,3 +141,28 @@ export const createEditPointTemplate = (point, destinationsList, offersList) => 
     </form>
   </li>`;
 };
+
+export default class EditPoint {
+  constructor(point, destinationsList, offersList) {
+    this._point = point;
+    this._destination = destinationsList;
+    this._offers = offersList;
+    this._element = null;
+  }
+
+  getTemplate() {
+    return createEditPointTemplate(this._point, this._destination, this._offers);
+  }
+
+  getElement() {
+    if (!this._element) {
+      this._element = createElement(this.getTemplate());
+    }
+
+    return this._element;
+  }
+
+  removeElement() {
+    this._element = null;
+  }
+}
