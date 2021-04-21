@@ -1,7 +1,7 @@
 import dayjs from 'dayjs';
 import {nanoid} from 'nanoid';
 import {TYPE_NAMES, DESTINATION_NAMES} from '../constants.js';
-import {createElement} from '../utils.js';
+import AbstractView from './abstract.js';
 
 const createNewPointTemplate = (point, destinationsList, offersList) => {
   const {type, destination, dateFrom, dateTo, basePrice, offers, id} = point;
@@ -143,8 +143,9 @@ const createNewPointTemplate = (point, destinationsList, offersList) => {
   </li>`;
 };
 
-export default class NewPoint {
+export default class NewPoint extends AbstractView {
   constructor(destinationsList, offersList) {
+    super();
     this._destinations = destinationsList;
     this._offers = offersList;
     this._data = {};
@@ -155,22 +156,9 @@ export default class NewPoint {
     this._data.basePrice = '';
     this._data.offers = [];
     this._data.id = nanoid();
-    this._element = null;
   }
 
   getTemplate() {
     return createNewPointTemplate(this._data, this._destinations, this._offers);
-  }
-
-  getElement() {
-    if (!this._element) {
-      this._element = createElement(this.getTemplate());
-    }
-
-    return this._element;
-  }
-
-  removeElement() {
-    this._element = null;
   }
 }
