@@ -1,6 +1,7 @@
 import dayjs from 'dayjs';
 import {TYPE_NAMES, DESTINATION_NAMES} from '../constants.js';
-import {createElement} from '../utils.js';
+import AbstractView from './abstract.js';
+import {Selector} from '../selector.js';
 
 const createEditPointTemplate = (point, destinationsList, offersList) => {
   const {type, destination, dateFrom, dateTo, basePrice, offers, id} = point;
@@ -142,27 +143,37 @@ const createEditPointTemplate = (point, destinationsList, offersList) => {
   </li>`;
 };
 
-export default class EditPoint {
+export default class EditPoint extends AbstractView {
   constructor(point, destinationsList, offersList) {
+    super();
     this._point = point;
     this._destination = destinationsList;
     this._offers = offersList;
-    this._element = null;
+    this._closeClickHandler = this._closeClickHandler.bind(this);
+    this._formSubmitHandler = this._formSubmitHandler.bind(this);
   }
 
   getTemplate() {
     return createEditPointTemplate(this._point, this._destination, this._offers);
   }
 
-  getElement() {
-    if (!this._element) {
-      this._element = createElement(this.getTemplate());
-    }
-
-    return this._element;
+  _closeClickHandler(evt) {
+    evt.preventDefault();
+    this._callback.closeClick();
   }
 
-  removeElement() {
-    this._element = null;
+  _formSubmitHandler(evt) {
+    evt.preventDefault();
+    this._callback.formSubmit();
+  }
+
+  setCloseClickHandler(callback) {
+    this._callback.closeClick = callback;
+    this.getElement().querySelector(Selector.FORM_TOGGLE).addEventListener('click', this._closeClickHandler);
+  }
+
+  setFormSubmitHandler(callback) {
+    this._callback.formSubmit = callback;
+    this.getElement().querySelector(Selector.FORM).addEventListener('submit', this._formSubmitHandler);
   }
 }

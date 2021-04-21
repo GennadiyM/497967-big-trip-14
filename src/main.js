@@ -9,46 +9,38 @@ import SortingView from './view/sorting.js';
 import PointListView from './view/point-list.js';
 import EditPointView from './view/edit-point.js';
 import PointView from './view/point.js';
-import {RenderPosition, renderElement} from './utils.js';
+import {render, RenderPosition, replace} from './utils/render.js';
 import {generatePoints} from './mock/points.js';
 import {generateDestinations} from './mock/destinations.js';
 import {generateOffers} from './mock/offers.js';
-
-const Selector = {
-  MAIN: '.trip-main',
-  MENU: '.trip-controls__navigation',
-  FILTER: '.trip-controls__filters',
-  CONTENT: '.trip-events',
-  FORM_TOGGLE: '.event__rollup-btn',
-  FORM: '.event',
-};
+import {Selector} from './selector.js';
 
 const renderPoint = (container, point, destinations, offers) => {
   const pointComponent = new PointView(point);
   const editPointComponent = new EditPointView(point, destinations, offers);
 
+  const onEscKeyDown = (evt) => {
+    if (evt.key === 'Escape' || evt.key === 'Esc') {
+      evt.preventDefault();
+      replaceFormToPoint();
+      document.removeEventListener('keydown', onEscKeyDown);
+    }
+  };
+
   const replacePointToForm = () => {
-    container.replaceChild(editPointComponent.getElement(), pointComponent.getElement());
+    replace(editPointComponent, pointComponent);
+    document.addEventListener('keydown', onEscKeyDown);
   };
 
   const replaceFormToPoint = () => {
-    pointListComponent.getElement().replaceChild(pointComponent.getElement(), editPointComponent.getElement());
+    replace(pointComponent, editPointComponent);
   };
 
-  pointComponent.getElement().querySelector(Selector.FORM_TOGGLE).addEventListener('click', () => {
-    replacePointToForm();
-  });
+  pointComponent.setOpenClickHandler(replacePointToForm);
+  editPointComponent.setCloseClickHandler(replaceFormToPoint);
+  editPointComponent.setFormSubmitHandler(replaceFormToPoint);
 
-  editPointComponent.getElement().querySelector(Selector.FORM_TOGGLE).addEventListener('click', () => {
-    replaceFormToPoint();
-  });
-
-  editPointComponent.getElement().querySelector(Selector.FORM).addEventListener('submit', (evt) => {
-    evt.preventDefault();
-    replaceFormToPoint();
-  });
-
-  renderElement(container, pointComponent.getElement());
+  render(container, pointComponent);
 };
 
 const destinations = generateDestinations();
@@ -63,14 +55,14 @@ const tripContentContainer = document.querySelector(Selector.CONTENT);
 const tripInfoComponent = new TripInfoView();
 const pointListComponent = new PointListView();
 
-renderElement(tripMainContainer, tripInfoComponent.getElement(), RenderPosition.AFTERBEGIN);
-renderElement(tripInfoComponent.getElement(), new TripRouteView().getElement());
-renderElement(tripInfoComponent.getElement(), new TripCostView().getElement());
+render(tripMainContainer, tripInfoComponent, RenderPosition.AFTERBEGIN);
+render(tripInfoComponent, new TripRouteView());
+render(tripInfoComponent, new TripCostView());
 
-renderElement(tripMainContainer, new AddBtnView().getElement());
-renderElement(tripMenuContainer, new MenuView().getElement());
-renderElement(tripFilterContainer, new FilterView().getElement());
-renderElement(tripContentContainer, new SortingView().getElement());
-renderElement(tripContentContainer, pointListComponent.getElement());
+render(tripMainContainer, new AddBtnView());
+render(tripMenuContainer, new MenuView());
+render(tripFilterContainer, new FilterView());
+render(tripContentContainer, new SortingView());
+render(tripContentContainer, pointListComponent);
 
-points.forEach((point) => renderPoint(pointListComponent.getElement(), point, destinations, offers));
+points.forEach((point) => renderPoint(pointListComponent, point, destinations, offers));

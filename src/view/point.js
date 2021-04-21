@@ -1,5 +1,6 @@
 import dayjs from 'dayjs';
-import {createElement} from '../utils.js';
+import AbstractView from './abstract.js';
+import {Selector} from '../selector.js';
 
 const Class = {
   BTN_FAVORITE_ACTIVE: 'event__favorite-btn--active',
@@ -87,25 +88,24 @@ const createPointTemplate = (point) => {
   </li>`;
 };
 
-export default class Point {
+export default class Point extends AbstractView {
   constructor(point) {
+    super();
     this._point = point;
-    this._element = null;
+    this._openClickHandler = this._openClickHandler.bind(this);
   }
 
   getTemplate() {
     return createPointTemplate(this._point);
   }
 
-  getElement() {
-    if (!this._element) {
-      this._element = createElement(this.getTemplate());
-    }
-
-    return this._element;
+  _openClickHandler(evt) {
+    evt.preventDefault();
+    this._callback.editClick();
   }
 
-  removeElement() {
-    this._element = null;
+  setOpenClickHandler(callback) {
+    this._callback.editClick = callback;
+    this.getElement().querySelector(Selector.FORM_TOGGLE).addEventListener('click', this._openClickHandler);
   }
 }

@@ -1,5 +1,5 @@
 import {TYPE_NAMES, OFFER_NAMES} from '../constants.js';
-import {getRandomInteger, getRandomElementArray} from '../utils.js';
+import {getRandomInteger, getRandomElementArray} from '../utils/common.js';
 
 const PriceOffer = {
   MIN: 50,
