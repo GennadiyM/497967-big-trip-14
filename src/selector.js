@@ -6,4 +6,5 @@ export const Selector = {
   CONTENT: '.trip-events',
   FORM_TOGGLE: '.event__rollup-btn',
   FORM: '.event',
+  FAVORITE: '.event__favorite-btn',
 };

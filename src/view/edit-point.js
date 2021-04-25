@@ -157,16 +157,6 @@ export default class EditPoint extends AbstractView {
     return createEditPointTemplate(this._point, this._destination, this._offers);
   }
 
-  _closeClickHandler(evt) {
-    evt.preventDefault();
-    this._callback.closeClick();
-  }
-
-  _formSubmitHandler(evt) {
-    evt.preventDefault();
-    this._callback.formSubmit();
-  }
-
   setCloseClickHandler(callback) {
     this._callback.closeClick = callback;
     this.getElement().querySelector(Selector.FORM_TOGGLE).addEventListener('click', this._closeClickHandler);
@@ -175,5 +165,15 @@ export default class EditPoint extends AbstractView {
   setFormSubmitHandler(callback) {
     this._callback.formSubmit = callback;
     this.getElement().querySelector(Selector.FORM).addEventListener('submit', this._formSubmitHandler);
+  }
+
+  _closeClickHandler(evt) {
+    evt.preventDefault();
+    this._callback.closeClick();
+  }
+
+  _formSubmitHandler(evt) {
+    evt.preventDefault();
+    this._callback.formSubmit(this._point);
   }
 }
