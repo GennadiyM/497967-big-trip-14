@@ -1,7 +1,6 @@
 import dayjs from 'dayjs';
-import {TYPE_NAMES, DESTINATION_NAMES} from '../constants.js';
+import {TYPE_NAMES, DESTINATION_NAMES, Selector} from '../constants.js';
 import AbstractView from './abstract.js';
-import {Selector} from '../selector.js';
 
 const createEditPointTemplate = (point, destinationsList, offersList) => {
   const {type, destination, dateFrom, dateTo, basePrice, offers, id} = point;
