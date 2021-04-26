@@ -11,7 +11,7 @@ import {generatePoints} from './mock/points.js';
 import {generateDestinations} from './mock/destinations.js';
 import {generateOffers} from './mock/offers.js';
 
-const POINT_COUNT = 33;
+const POINT_COUNT = 3;
 
 const destinations = generateDestinations();
 const offers = generateOffers();
