@@ -1,5 +1,7 @@
-import {TYPE_NAMES, OFFER_NAMES} from '../constants.js';
+import {TYPE_NAMES} from '../constants.js';
 import {getRandomInteger, getRandomElementArray} from '../utils/common.js';
+
+const OFFER_NAMES = ['Add luggage', 'Switch to comfort class', 'Add meal', 'Choose seats', 'Travel by train', 'Rent a car'];
 
 const PriceOffer = {
   MIN: 50,

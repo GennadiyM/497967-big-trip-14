@@ -1,4 +1,4 @@
-import {POINT_COUNT} from './constants.js';
+import {Selector} from './constants.js';
 import TripInfoView from './view/trip-info.js';
 import TripRouteView from './view/trip-route.js';
 import TripCostView from './view/trip-cost.js';
@@ -10,7 +10,8 @@ import {render, RenderPosition} from './utils/render.js';
 import {generatePoints} from './mock/points.js';
 import {generateDestinations} from './mock/destinations.js';
 import {generateOffers} from './mock/offers.js';
-import {Selector} from './selector.js';
+
+const POINT_COUNT = 3;
 
 const destinations = generateDestinations();
 const offers = generateOffers();

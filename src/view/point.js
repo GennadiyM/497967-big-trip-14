@@ -1,6 +1,6 @@
 import dayjs from 'dayjs';
 import AbstractView from './abstract.js';
-import {Selector} from '../selector.js';
+import {Selector} from '../constants.js';
 
 const Class = {
   BTN_FAVORITE_ACTIVE: 'event__favorite-btn--active',
