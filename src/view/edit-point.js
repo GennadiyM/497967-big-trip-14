@@ -211,30 +211,30 @@ export default class EditPoint extends SmartView {
   _destinationChangeHandler(evt) {
     evt.preventDefault();
 
-    this.updateData({
-      currentDestination: evt.target.value,
-    }, true);
-
-    if (!validityDistinationName(this._data.currentDestination, this._destinations)) {
+    if (!validityDistinationName(evt.target.value, this._destinations)) {
       evt.target.setCustomValidity('Выберите значение из списка');
     } else {
       evt.target.setCustomValidity('');
+
+      this.updateData({
+        currentDestination: evt.target.value,
+      });
     }
   }
 
   _priceInputHandler(evt) {
     evt.preventDefault();
 
-    this.updateData({
-      currentPrice: evt.target.value,
-    }, true);
-
-    if (!this._data.currentPrice) {
+    if (!evt.target.value) {
       evt.target.setCustomValidity('Заполните поле');
-    } else if (this._data.currentPrice < 0) {
+    } else if (evt.target.value < 0) {
       evt.target.setCustomValidity('Число не может быть меньше 0');
     } else {
       evt.target.setCustomValidity('');
+
+      this.updateData({
+        currentPrice: evt.target.value,
+      }, true);
     }
   }
 
@@ -265,7 +265,7 @@ export default class EditPoint extends SmartView {
 
   _setInnerHandlers() {
     this.getElement().querySelector(Selector.TYPE_LIST).addEventListener('change', this._typeChangeHandler);
-    this.getElement().querySelector(Selector.DESTINATION).addEventListener('input', this._destinationChangeHandler);
+    this.getElement().querySelector(Selector.DESTINATION).addEventListener('change', this._destinationChangeHandler);
     this.getElement().querySelector(Selector.PRICE).addEventListener('input', this._priceInputHandler);
 
     if (getRequiredValues('type', this._offers, 'offers', this._data.currentType).length !== 0) {
