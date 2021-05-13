@@ -21,3 +21,23 @@ export const sortPointsTime = (eventA, eventB) => {
 
   return durationEventB - durationEventA;
 };
+
+export const validityDistinationName = (name, destinations) => {
+  const destinationNames = destinations.map((item) => item.name);
+
+  return destinationNames.includes(name);
+};
+
+
+export const getRequiredValues = (requiredKey, arrayToSearch, requiredDataName, example) => {
+  let requiredValues = false;
+
+  for(const item of arrayToSearch) {
+    if (item[requiredKey] === example) {
+      requiredValues = item[requiredDataName].slice();
+      break;
+    }
+  }
+
+  return requiredValues;
+};
