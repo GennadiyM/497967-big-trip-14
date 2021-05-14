@@ -1,27 +1,20 @@
 import dayjs from 'dayjs';
+import {nanoid} from 'nanoid';
 import {TYPE_NAMES, DESTINATION_NAMES, Selector} from '../constants.js';
-import AbstractView from './abstract.js';
+import {validateDistinationName, getRequiredValues} from '../utils/point.js';
+import SmartView from './smart.js';
 
 const createEditPointTemplate = (point, destinationsList, offersList) => {
-  const {type, destination, dateFrom, dateTo, basePrice, offers, id} = point;
+  const {currentType, currentDestination, currentDateFrom, currentDateTo, currentPrice, currentOffers, id} = point;
 
-  const getRequiredValues = (requiredKey, arrayToSearch, requiredDataName, example) => {
-    let requiredValues = false;
-
-    for(const item of arrayToSearch) {
-      if (item[requiredKey] === example) {
-        requiredValues = item[requiredDataName].slice();
-        break;
-      }
-    }
-
-    return requiredValues;
-  };
+  const actualDestinationDescription = getRequiredValues('name', destinationsList, 'description', currentDestination);
+  const actualDestinationPictures = getRequiredValues('name', destinationsList, 'pictures', currentDestination);
+  const actualOffers = getRequiredValues('type', offersList, 'offers', currentType);
 
   const getTypePointControls = () => {
     return TYPE_NAMES.map((name)=> {
       return `<div class="event__type-item">
-        <input id="event-type-${name}-${id}" class="event__type-input  visually-hidden" type="radio" name="event-type" value="${name}" ${name == type ? 'checked' : ''}>
+        <input id="event-type-${name}-${id}" class="event__type-input  visually-hidden" type="radio" name="event-type" value="${name}" ${name == currentType ? 'checked' : ''}>
         <label class="event__type-label  event__type-label--${name}" for="event-type-${name}-${id}">${name}</label>
       </div>`;
     }).join('');
@@ -35,11 +28,11 @@ const createEditPointTemplate = (point, destinationsList, offersList) => {
 
   const getOffersControls = () => {
 
-    return actualOffersList.map((offer) => {
+    return actualOffers.map((offer) => {
       const offerName = offer.title.split(' ').pop();
 
       return `<div class="event__offer-selector">
-        <input class="event__offer-checkbox  visually-hidden" id="event-offer-${offerName}-${id}" type="checkbox" name="event-offer-${offerName}-${id}" ${offers.indexOf(offer) !== -1 ? 'checked' : ''}>
+        <input class="event__offer-checkbox  visually-hidden" id="event-offer-${offerName}-${id}" data-title="${offer.title}" type="checkbox" name="event-offer-${offerName}-${id}" ${currentOffers.includes(offer) ? 'checked' : ''}>
         <label class="event__offer-label" for="event-offer-${offerName}-${id}">
           <span class="event__offer-title">${offer.title}</span>
           &plus;&euro;&nbsp;
@@ -50,7 +43,7 @@ const createEditPointTemplate = (point, destinationsList, offersList) => {
   };
 
   const getOffers = () => {
-    if (actualOffersList.length === 0) {
+    if (actualOffers.length === 0) {
       return '';
     }
 
@@ -63,6 +56,10 @@ const createEditPointTemplate = (point, destinationsList, offersList) => {
   };
 
   const getDestination = () => {
+    if (!validateDistinationName(currentDestination, destinationsList)) {
+      return '';
+    }
+
     const htmlDescription = actualDestinationDescription !== '' ? `
       <p class="event__destination-description">${actualDestinationDescription}</p>
     ` : '';
@@ -80,17 +77,13 @@ const createEditPointTemplate = (point, destinationsList, offersList) => {
     </section>`;
   };
 
-  const actualOffersList = getRequiredValues('type', offersList, 'offers', type);
-  const actualDestinationDescription = getRequiredValues('name', destinationsList, 'description', destination);
-  const actualDestinationPictures = getRequiredValues('name', destinationsList, 'pictures', destination);
-
   return `<li class="trip-events__item">
     <form class="event event--edit" action="#" method="post">
       <header class="event__header">
         <div class="event__type-wrapper">
           <label class="event__type  event__type-btn" for="event-type-toggle-${id}">
             <span class="visually-hidden">Choose event type</span>
-            <img class="event__type-icon" width="17" height="17" src="img/icons/${type}.png" alt="${type}">
+            <img class="event__type-icon" width="17" height="17" src="img/icons/${currentType}.png" alt="${currentType}">
           </label>
           <input class="event__type-toggle  visually-hidden" id="event-type-toggle-${id}" type="checkbox">
 
@@ -104,9 +97,9 @@ const createEditPointTemplate = (point, destinationsList, offersList) => {
 
         <div class="event__field-group  event__field-group--destination">
           <label class="event__label  event__type-output" for="event-destination-${id}">
-            ${type}
+            ${currentType}
           </label>
-          <input class="event__input  event__input--destination" id="event-destination-${id}" type="text" name="event-destination" value="${destination}" list="destination-list-${id}">
+          <input class="event__input  event__input--destination" id="event-destination-${id}" type="text" name="event-destination" value="${currentDestination}" list="destination-list-${id}">
           <datalist id="destination-list-${id}">
             ${getDestinationsNames()}
           </datalist>
@@ -114,10 +107,10 @@ const createEditPointTemplate = (point, destinationsList, offersList) => {
 
         <div class="event__field-group  event__field-group--time">
           <label class="visually-hidden" for="event-start-time-${id}">From</label>
-          <input class="event__input  event__input--time" id="event-start-time-${id}" type="text" name="event-start-time" value="${dayjs(dateFrom).format('DD/MM/YY HH:mm')}">
+          <input class="event__input  event__input--time" id="event-start-time-${id}" type="text" name="event-start-time" value="${dayjs(currentDateFrom).format('DD/MM/YY HH:mm')}">
           &mdash;
           <label class="visually-hidden" for="event-end-time-${id}">To</label>
-          <input class="event__input  event__input--time" id="event-end-time-${id}" type="text" name="event-end-time" value="${dayjs(dateTo).format('DD/MM/YY HH:mm')}">
+          <input class="event__input  event__input--time" id="event-end-time-${id}" type="text" name="event-end-time" value="${dayjs(currentDateTo).format('DD/MM/YY HH:mm')}">
         </div>
 
         <div class="event__field-group  event__field-group--price">
@@ -125,7 +118,7 @@ const createEditPointTemplate = (point, destinationsList, offersList) => {
             <span class="visually-hidden">Price</span>
             &euro;
           </label>
-          <input class="event__input  event__input--price" id="event-price-${id}" type="text" name="event-price" value="${basePrice}">
+          <input class="event__input  event__input--price" id="event-price-${id}" type="number" min="0" name="event-price" value="${currentPrice}">
         </div>
 
         <button class="event__save-btn  btn  btn--blue" type="submit">Save</button>
@@ -142,18 +135,36 @@ const createEditPointTemplate = (point, destinationsList, offersList) => {
   </li>`;
 };
 
-export default class EditPoint extends AbstractView {
-  constructor(point, destinationsList, offersList) {
+const examplePoint = {
+  type: TYPE_NAMES[0],
+  destination: DESTINATION_NAMES[0],
+  dateFrom: dayjs().set('minute', 0).set('second', 0).set('millisecond', 0).toDate(),
+  dateTo: dayjs().set('minute', 0).set('second', 0).set('millisecond', 0).toDate(),
+  basePrice: 0,
+  offers: [],
+  id: nanoid(),
+  isFavorite: false,
+};
+
+export default class EditPoint extends SmartView {
+  constructor(destinationsList, offersList, point = examplePoint) {
     super();
-    this._point = point;
-    this._destination = destinationsList;
+    this._data = EditPoint.parsePointToData(point);
+    this._destinations = destinationsList;
     this._offers = offersList;
+    this._offersOnActualType = getRequiredValues('type', this._offers, 'offers', this._data.currentType);
     this._closeClickHandler = this._closeClickHandler.bind(this);
     this._formSubmitHandler = this._formSubmitHandler.bind(this);
+    this._typeChangeHandler = this._typeChangeHandler.bind(this);
+    this._destinationChangeHandler = this._destinationChangeHandler.bind(this);
+    this._priceInputHandler = this._priceInputHandler.bind(this);
+    this._offersChangeHandler = this._offersChangeHandler.bind(this);
+
+    this._setInnerHandlers();
   }
 
   getTemplate() {
-    return createEditPointTemplate(this._point, this._destination, this._offers);
+    return createEditPointTemplate(this._data, this._destinations, this._offers);
   }
 
   setCloseClickHandler(callback) {
@@ -166,6 +177,18 @@ export default class EditPoint extends AbstractView {
     this.getElement().querySelector(Selector.FORM).addEventListener('submit', this._formSubmitHandler);
   }
 
+  restoreHandlers() {
+    this._setInnerHandlers();
+    this.setFormSubmitHandler(this._callback.formSubmit);
+    this.setCloseClickHandler(this._callback.closeClick);
+  }
+
+  reset(point) {
+    this.updateData(
+      EditPoint.parsePointToData(point),
+    );
+  }
+
   _closeClickHandler(evt) {
     evt.preventDefault();
     this._callback.closeClick();
@@ -173,6 +196,112 @@ export default class EditPoint extends AbstractView {
 
   _formSubmitHandler(evt) {
     evt.preventDefault();
-    this._callback.formSubmit(this._point);
+
+    this._callback.formSubmit(EditPoint.parseDataToPoint(this._data));
+  }
+
+  _typeChangeHandler(evt) {
+    evt.preventDefault();
+
+    this.updateData({
+      currentType: evt.target.value,
+      currentOffers: [],
+    });
+  }
+
+  _destinationChangeHandler(evt) {
+    evt.preventDefault();
+
+    if (!validateDistinationName(evt.target.value, this._destinations)) {
+      evt.target.setCustomValidity('Выберите значение из списка');
+    } else {
+      evt.target.setCustomValidity('');
+
+      this.updateData({
+        currentDestination: evt.target.value,
+      });
+    }
+  }
+
+  _priceInputHandler(evt) {
+    evt.preventDefault();
+
+    if (!evt.target.value) {
+      evt.target.setCustomValidity('Заполните поле');
+    } else if (evt.target.value < 0) {
+      evt.target.setCustomValidity('Число не может быть меньше 0');
+    } else {
+      evt.target.setCustomValidity('');
+
+      this.updateData({
+        currentPrice: evt.target.value,
+      }, true);
+    }
+  }
+
+  _getClickOffer(clickOfferName) {
+    return this._offersOnActualType.find((offer) => offer.title === clickOfferName);
+  }
+
+  _offersChangeHandler(evt) {
+    evt.preventDefault();
+    const clickOfferName = evt.target.dataset.title;
+
+    const clickOffer = this._getClickOffer(clickOfferName);
+
+    if (this._data.currentOffers.includes(clickOffer)) {
+      delete this._data.currentOffers[this._data.currentOffers.indexOf(clickOffer)];
+    } else {
+      this._data.currentOffers.push(clickOffer);
+    }
+
+    this.updateData({
+      currentOffers: this._data.currentOffers,
+    }, true);
+  }
+
+  _setInnerHandlers() {
+    this.getElement().querySelector(Selector.TYPE_LIST).addEventListener('change', this._typeChangeHandler);
+    this.getElement().querySelector(Selector.DESTINATION).addEventListener('change', this._destinationChangeHandler);
+    this.getElement().querySelector(Selector.PRICE).addEventListener('input', this._priceInputHandler);
+
+    if (this._offersOnActualType.length !== 0) {
+      this.getElement().querySelector(Selector.OFFERS).addEventListener('change', this._offersChangeHandler);
+    }
+  }
+
+  static parsePointToData(point) {
+    return Object.assign(
+      {},
+      point,
+      {
+        currentDateFrom: point.dateFrom,
+        currentDateTo: point.dateTo,
+        currentPrice: point.basePrice,
+        currentType: point.type,
+        currentDestination: point.destination,
+        currentOffers: point.offers.slice(),
+      },
+    );
+  }
+
+  static parseDataToPoint(data) {
+    data = Object.assign({}, data);
+
+    data.dateFrom = data.currentDateFrom;
+    data.dateTo = data.currentDateTo;
+    data.type = data.currentType;
+    data.destination = data.currentDestination;
+    data.basePrice = data.currentPrice;
+    data.offers = data.currentOffers.slice();
+
+    delete data.currentDateFrom;
+    delete data.currentDateTo;
+    delete data.currentPrice;
+    delete data.currentType;
+    delete data.currentDestination;
+    delete data.currentOffers;
+
+    return data;
   }
 }

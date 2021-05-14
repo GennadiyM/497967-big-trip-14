@@ -15,4 +15,8 @@ export const Selector = {
   FORM_TOGGLE: '.event__rollup-btn',
   FORM: '.event',
   FAVORITE: '.event__favorite-btn',
+  TYPE_LIST: '.event__type-list',
+  DESTINATION: '.event__input--destination',
+  PRICE: '.event__input--price',
+  OFFERS: '.event__available-offers',
 };
