@@ -19,4 +19,6 @@ export const Selector = {
   DESTINATION: '.event__input--destination',
   PRICE: '.event__input--price',
   OFFERS: '.event__available-offers',
+  DATE_FROM: '.event__input--time[name="event-start-time"]',
+  DATE_TO: '.event__input--time[name="event-end-time"]',
 };
