@@ -22,7 +22,7 @@ export const sortPointsTime = (eventA, eventB) => {
   return durationEventB - durationEventA;
 };
 
-export const validityDistinationName = (name, destinations) => {
+export const validateDistinationName = (name, destinations) => {
   const destinationNames = destinations.map((item) => item.name);
 
   return destinationNames.includes(name);
@@ -30,14 +30,6 @@ export const validityDistinationName = (name, destinations) => {
 
 
 export const getRequiredValues = (requiredKey, arrayToSearch, requiredDataName, example) => {
-  let requiredValues = false;
-
-  for(const item of arrayToSearch) {
-    if (item[requiredKey] === example) {
-      requiredValues = item[requiredDataName].slice();
-      break;
-    }
-  }
-
+  const requiredValues = arrayToSearch.find((item) => item[requiredKey] === example)[requiredDataName].slice();
   return requiredValues;
 };

@@ -1,7 +1,7 @@
 import dayjs from 'dayjs';
 import {nanoid} from 'nanoid';
 import {TYPE_NAMES, DESTINATION_NAMES, Selector} from '../constants.js';
-import {validityDistinationName, getRequiredValues} from '../utils/point.js';
+import {validateDistinationName, getRequiredValues} from '../utils/point.js';
 import SmartView from './smart.js';
 
 const createEditPointTemplate = (point, destinationsList, offersList) => {
@@ -56,7 +56,7 @@ const createEditPointTemplate = (point, destinationsList, offersList) => {
   };
 
   const getDestination = () => {
-    if (!validityDistinationName(currentDestination, destinationsList)) {
+    if (!validateDistinationName(currentDestination, destinationsList)) {
       return '';
     }
 
@@ -152,6 +152,7 @@ export default class EditPoint extends SmartView {
     this._data = EditPoint.parsePointToData(point);
     this._destinations = destinationsList;
     this._offers = offersList;
+    this._offersOfActualType = getRequiredValues('type', this._offers, 'offers', this._data.currentType);
     this._closeClickHandler = this._closeClickHandler.bind(this);
     this._formSubmitHandler = this._formSubmitHandler.bind(this);
     this._typeChangeHandler = this._typeChangeHandler.bind(this);
@@ -211,7 +212,7 @@ export default class EditPoint extends SmartView {
   _destinationChangeHandler(evt) {
     evt.preventDefault();
 
-    if (!validityDistinationName(evt.target.value, this._destinations)) {
+    if (!validateDistinationName(evt.target.value, this._destinations)) {
       evt.target.setCustomValidity('Выберите значение из списка');
     } else {
       evt.target.setCustomValidity('');
@@ -239,7 +240,7 @@ export default class EditPoint extends SmartView {
   }
 
   _getClickOffer(clickOfferName) {
-    for (const offer of getRequiredValues('type', this._offers, 'offers', this._data.currentType)) {
+    for (const offer of this._offersOfActualType) {
       if (offer.title === clickOfferName) {
         return offer;
       }
@@ -268,7 +269,7 @@ export default class EditPoint extends SmartView {
     this.getElement().querySelector(Selector.DESTINATION).addEventListener('change', this._destinationChangeHandler);
     this.getElement().querySelector(Selector.PRICE).addEventListener('input', this._priceInputHandler);
 
-    if (getRequiredValues('type', this._offers, 'offers', this._data.currentType).length !== 0) {
+    if (this._offersOfActualType.length !== 0) {
       this.getElement().querySelector(Selector.OFFERS).addEventListener('change', this._offersChangeHandler);
     }
   }
