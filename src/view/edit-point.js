@@ -152,7 +152,7 @@ export default class EditPoint extends SmartView {
     this._data = EditPoint.parsePointToData(point);
     this._destinations = destinationsList;
     this._offers = offersList;
-    this._offersOfActualType = getRequiredValues('type', this._offers, 'offers', this._data.currentType);
+    this._offersOnActualType = getRequiredValues('type', this._offers, 'offers', this._data.currentType);
     this._closeClickHandler = this._closeClickHandler.bind(this);
     this._formSubmitHandler = this._formSubmitHandler.bind(this);
     this._typeChangeHandler = this._typeChangeHandler.bind(this);
@@ -240,11 +240,7 @@ export default class EditPoint extends SmartView {
   }
 
   _getClickOffer(clickOfferName) {
-    for (const offer of this._offersOfActualType) {
-      if (offer.title === clickOfferName) {
-        return offer;
-      }
-    }
+    return this._offersOnActualType.find((offer) => offer.title === clickOfferName);
   }
 
   _offersChangeHandler(evt) {
@@ -269,7 +265,7 @@ export default class EditPoint extends SmartView {
     this.getElement().querySelector(Selector.DESTINATION).addEventListener('change', this._destinationChangeHandler);
     this.getElement().querySelector(Selector.PRICE).addEventListener('input', this._priceInputHandler);
 
-    if (this._offersOfActualType.length !== 0) {
+    if (this._offersOnActualType.length !== 0) {
       this.getElement().querySelector(Selector.OFFERS).addEventListener('change', this._offersChangeHandler);
     }
   }
