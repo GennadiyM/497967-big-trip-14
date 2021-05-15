@@ -21,4 +21,23 @@ export const Selector = {
   OFFERS: '.event__available-offers',
   DATE_FROM: '.event__input--time[name="event-start-time"]',
   DATE_TO: '.event__input--time[name="event-end-time"]',
+  DEL: '.event__reset-btn',
+};
+
+export const UserAction = {
+  UPDATE_POINT: 'UPDATE_POINT',
+  ADD_POINT: 'ADD_POINT',
+  DELETE_POINT: 'DELETE_POINT',
+};
+
+export const UpdateType = {
+  PATCH: 'PATCH',
+  MINOR: 'MINOR',
+  MAJOR: 'MAJOR',
+};
+
+export const FilterType = {
+  EVERYTHING: 'everything',
+  FUTURE: 'future',
+  PAST: 'past',
 };

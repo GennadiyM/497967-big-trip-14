@@ -21,6 +21,13 @@ const generateOffer = (title) => {
 };
 
 const generateOffersListInType = (type) => {
+  if (type === TYPE_NAMES[0]) {
+    return {
+      type,
+      'offers': [],
+    };
+  }
+
   const namesOffers = Array.from(new Set(new Array(getRandomInteger(CountOffer.MIN, CountOffer.MAX)).fill().map(() => getRandomElementArray(OFFER_NAMES))));
   return {
     type,
