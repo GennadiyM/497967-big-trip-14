@@ -1,6 +1,7 @@
 import PointView from '../view/point.js';
 import EditPointView from '../view/edit-point.js';
 import {render, replace, remove} from '../utils/render.js';
+import {UserAction, UpdateType} from '../constants.js';
 
 const Mode = {
   DEFAULT: 'DEFAULT',
@@ -8,10 +9,10 @@ const Mode = {
 };
 
 export default class Point {
-  constructor(pointListContainer, destinations, offers, changeData, changeMode) {
+  constructor(pointListContainer, offersModel, destinationsModel, changeData, changeMode) {
     this._pointListContainer = pointListContainer;
-    this._destinations = destinations;
-    this._offers = offers;
+    this._offersModel = offersModel;
+    this._destinationsModel = destinationsModel;
     this._changeData = changeData;
     this._changeMode = changeMode;
 
@@ -22,6 +23,7 @@ export default class Point {
     this._handleOpenClick = this._handleOpenClick.bind(this);
     this._handleCloseClick = this._handleCloseClick.bind(this);
     this._handleFavoriteClick = this._handleFavoriteClick.bind(this);
+    this._handleDeleteClick = this._handleDeleteClick.bind(this);
     this._handleFormSubmit = this._handleFormSubmit.bind(this);
     this._escKeyDownHandler = this._escKeyDownHandler.bind(this);
   }
@@ -33,12 +35,13 @@ export default class Point {
     const prevEditPointComponent = this._editPointComponent;
 
     this._pointComponent = new PointView(point);
-    this._editPointComponent = new EditPointView(this._destinations, this._offers, point);
+    this._editPointComponent = new EditPointView(this._offersModel.getOffers(), this._destinationsModel.getDestinations(), point, true);
 
     this._pointComponent.setOpenClickHandler(this._handleOpenClick);
     this._pointComponent.setFavoriteClickHandler(this._handleFavoriteClick);
     this._editPointComponent.setCloseClickHandler(this._handleCloseClick);
     this._editPointComponent.setFormSubmitHandler(this._handleFormSubmit);
+    this._editPointComponent.setDeleteClickHandler(this._handleDeleteClick);
 
     if (prevPoinComponent === null || prevEditPointComponent === null) {
       render(this._pointListContainer, this._pointComponent);
@@ -99,13 +102,27 @@ export default class Point {
     this._replaceFormToPoint();
   }
 
+  _handleDeleteClick(point) {
+    this._changeData(
+      UserAction.DELETE_POINT,
+      UpdateType.MINOR,
+      point,
+    );
+  }
+
   _handleFormSubmit(point) {
-    this._changeData(point);
+    this._changeData(
+      UserAction.UPDATE_POINT,
+      UpdateType.MINOR,
+      point,
+    );
     this._replaceFormToPoint();
   }
 
   _handleFavoriteClick() {
     this._changeData(
+      UserAction.UPDATE_POINT,
+      UpdateType.PATCH,
       Object.assign(
         {},
         this._point,

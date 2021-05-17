@@ -21,6 +21,7 @@ const generateDates = () => {
   const minutesGap = () => getDecimalInteger(getRandomInteger(0, MAX_MINUTES_GAP));
 
   const dateFrom = dayjs().set('minute', 0).set('second', 0).set('millisecond', 0).add(daysGap(), 'day').add(hoursGap(), 'hour').add(minutesGap(), 'minute').toDate();
+
   const dateTo = dayjs(dateFrom).add(futureDaysGap(), 'day').add(hoursGap(), 'hour').add(minutesGap(), 'minute').toDate();
 
   return {
@@ -42,11 +43,12 @@ const getOffers = (offers, type) => {
 
 const generatePoint = (offersList, destination) => {
   const type = getRandomElementArray(TYPE_NAMES);
+  const dates = generateDates();
 
   return {
     'basePrice': getRandomInteger(PricePoint.MIN, PricePoint.MAX),
-    'dateFrom': generateDates().dateFrom,
-    'dateTo': generateDates().dateTo,
+    'dateFrom': dates.dateFrom,
+    'dateTo': dates.dateTo,
     destination,
     'id': nanoid(),
     'isFavorite': Boolean(getRandomInteger(0, 1)),
