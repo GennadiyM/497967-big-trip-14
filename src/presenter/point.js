@@ -35,7 +35,7 @@ export default class Point {
     const prevEditPointComponent = this._editPointComponent;
 
     this._pointComponent = new PointView(point);
-    this._editPointComponent = new EditPointView(this._getOffers(), this._getDestinations(), point);
+    this._editPointComponent = new EditPointView(this._offersModel.getOffers(), this._destinationsModel.getDestinations(), point, true);
 
     this._pointComponent.setOpenClickHandler(this._handleOpenClick);
     this._pointComponent.setFavoriteClickHandler(this._handleFavoriteClick);
@@ -70,14 +70,6 @@ export default class Point {
       this._editPointComponent.reset(this._point);
       this._replaceFormToPoint();
     }
-  }
-
-  _getOffers() {
-    return this._offersModel.getOffers();
-  }
-
-  _getDestinations() {
-    return this._destinationsModel.getDestinations();
   }
 
   _replacePointToForm() {

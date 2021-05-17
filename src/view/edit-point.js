@@ -7,7 +7,7 @@ import SmartView from './smart.js';
 
 import '../../node_modules/flatpickr/dist/flatpickr.min.css';
 
-const createEditPointTemplate = (point, destinationsList, offersList) => {
+const createEditPointTemplate = (point, destinationsList, offersList, editMode) => {
   const {currentType, currentDestination, currentDateFrom, currentDateTo, currentPrice, currentOffers, id} = point;
 
   const actualDestinationDescription = getRequiredValues('name', destinationsList, 'description', currentDestination);
@@ -124,10 +124,8 @@ const createEditPointTemplate = (point, destinationsList, offersList) => {
         </div>
 
         <button class="event__save-btn  btn  btn--blue" type="submit">Save</button>
-        <button class="event__reset-btn" type="reset">Delete</button>
-        <button class="event__rollup-btn" type="button">
-          <span class="visually-hidden">Open event</span>
-        </button>
+        <button class="event__reset-btn" type="reset">${editMode ? 'Delete' : 'Cancel'}</button>
+        ${editMode ? '<button class="event__rollup-btn" type="button"><span class="visually-hidden">Open event</span></button>' : ''}
       </header>
       <section class="event__details">
         ${getOffers()}
@@ -149,9 +147,10 @@ const examplePoint = {
 };
 
 export default class EditPoint extends SmartView {
-  constructor(offersList, destinationsList, point = examplePoint) {
+  constructor(offersList, destinationsList, point = examplePoint, editMode = false) {
     super();
     this._data = EditPoint.parsePointToData(point);
+    this._editMode = editMode;
     this._datepickerDateFrom = null;
     this._datepickerDateTo = null;
     this._offers = offersList.slice();
@@ -184,12 +183,17 @@ export default class EditPoint extends SmartView {
   }
 
   getTemplate() {
-    return createEditPointTemplate(this._data, this._destinations, this._offers);
+    return createEditPointTemplate(this._data, this._destinations, this._offers, this._editMode);
   }
 
   setCloseClickHandler(callback) {
     this._callback.closeClick = callback;
     this.getElement().querySelector(Selector.FORM_TOGGLE).addEventListener('click', this._closeClickHandler);
+  }
+
+  setCancelClickHandler(callback) {
+    this._callback.closeClick = callback;
+    this.getElement().querySelector(Selector.DEL).addEventListener('click', this._closeClickHandler);
   }
 
   setFormSubmitHandler(callback) {

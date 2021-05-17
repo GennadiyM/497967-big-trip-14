@@ -1,9 +1,11 @@
 import SortingView from '../view/sorting.js';
 import EmptyListView from '../view/empty-list.js';
 import PointListView from '../view/point-list.js';
+import EditPointView from '../view/edit-point.js';
 import PointPresenter from './point.js';
+import NewPointPresenter from './new-point.js';
 import {render, remove} from '../utils/render.js';
-import {Filter} from '../utils/filter';
+import {filter} from '../utils/filter.js';
 import {sortPointsPrice, sortPointsTime, sortPointDate} from '../utils/point.js';
 import {SortType, UpdateType, UserAction} from '../constants.js';
 
@@ -20,24 +22,55 @@ export default class Travel {
     this._sortingComponent = new SortingView(this._currentSortType);
     this._emptyListComponent = new EmptyListView();
     this._pointListComponent = new PointListView();
+    this._editPointComponent = new EditPointView(this._offersModel.getOffers(), this._destinationsModel.getDestinations());
 
     this._handleViewAction = this._handleViewAction.bind(this);
     this._handleModelEvent = this._handleModelEvent.bind(this);
     this._handleModeChange = this._handleModeChange.bind(this);
     this._handleSortTypeChange = this._handleSortTypeChange.bind(this);
 
-    this._pointsModel.addObserver(this._handleModelEvent);
-    this._filterModel.addObserver(this._handleModelEvent);
+    this._newPointPresenter = new NewPointPresenter(this._pointListComponent, this._offersModel, this._destinationsModel, this._handleViewAction);
   }
 
   init() {
+    this._pointsModel.addObserver(this._handleModelEvent);
+    this._filterModel.addObserver(this._handleModelEvent);
+
     this._renderTravel();
+  }
+
+  destroy() {
+    this._clearTravel(true);
+
+    this._pointsModel.removeObserver(this._handleModelEvent);
+    this._filterModel.removeObserver(this._handleModelEvent);
+  }
+
+  replacePontListOnEmptyList() {
+    if (this._getPoints().length === 0) {
+      remove(this._pointListComponent);
+      render(this._travelContainer, this._emptyListComponent);
+    }
+  }
+
+  createPoint(callback) {
+    if (this._getPoints().length === 0) {
+      remove(this._emptyListComponent);
+      render(this._travelContainer, this._pointListComponent);
+    }
+
+    this._siteMenuPresenter.reset();
+    this._newPointPresenter.init(callback);
+  }
+
+  setSiteMenuPresenter(presenter) {
+    this._siteMenuPresenter = presenter;
   }
 
   _getPoints() {
     const filterType = this._filterModel.getFilter();
     const points = this._pointsModel.getPoints();
-    const filtredPoints = Filter[filterType](points);
+    const filtredPoints = filter[filterType](points);
 
     switch (this._currentSortType) {
       case SortType.TIME:
@@ -82,8 +115,11 @@ export default class Travel {
 
     this._clearPoinList();
 
+    this._newPointPresenter.destroy();
+
     if (resetSortType) {
       this._currentSortType = SortType.DEFAULT;
+      this._sortingComponent.setCurrentSortType(this._currentSortType);
     }
   }
 
@@ -122,13 +158,14 @@ export default class Travel {
         break;
       case UpdateType.MAJOR:
         this._clearTravel(true);
-        this._sortingComponent.setCurrentSortType(this._currentSortType);
         this._renderTravel();
         break;
     }
   }
 
   _handleModeChange() {
+    this._newPointPresenter.destroy();
+
     Object
       .values(this._pointPresenter)
       .forEach((presenter) => presenter.resetView());
@@ -140,7 +177,7 @@ export default class Travel {
     }
 
     this._currentSortType = sortType;
-    this._clearPoinList();
-    this._renderPointList();
+    this._clearTravel();
+    this._renderTravel();
   }
 }

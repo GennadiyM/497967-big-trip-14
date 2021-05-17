@@ -1,5 +1,4 @@
-import dayjs from "dayjs";
-import {FilterType} from "../constants.js"
+import {FilterType} from '../constants.js';
 
 const checkDatePoint = (point) => {
   if (point.dateFrom.getTime() < Date.now() && point.dateTo.getTime() > Date.now()) {
@@ -22,7 +21,7 @@ export const isPointPast = (point)  => {
   return point.dateFrom.getTime() < Date.now();
 };
 
-export const Filter = {
+export const filter = {
   [FilterType.EVERYTHING]: (points) => points,
   [FilterType.FUTURE]: (points) => points.filter(isPointFuture),
   [FilterType.PAST]: (points) => points.filter(isPointPast),
