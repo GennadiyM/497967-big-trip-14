@@ -1,4 +1,5 @@
 import EditPointView from '../view/edit-point.js';
+import {nanoid} from 'nanoid';
 import {render, remove, RenderPosition} from '../utils/render.js';
 import {UserAction, UpdateType} from '../constants.js';
 
@@ -62,6 +63,7 @@ export default class NewPoint {
       UserAction.ADD_POINT,
       UpdateType.MINOR,
       point,
+      point.id = nanoid(),
     );
     this.destroy();
   }

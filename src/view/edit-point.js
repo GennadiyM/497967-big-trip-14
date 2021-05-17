@@ -1,6 +1,5 @@
 import dayjs from 'dayjs';
 import flatpickr from 'flatpickr';
-import {nanoid} from 'nanoid';
 import {TYPE_NAMES, DESTINATION_NAMES, Selector} from '../constants.js';
 import {validateDistinationName, getRequiredValues} from '../utils/point.js';
 import SmartView from './smart.js';
@@ -142,7 +141,7 @@ const examplePoint = {
   dateTo: dayjs().set('minute', 0).set('second', 0).set('millisecond', 0).toDate(),
   basePrice: 0,
   offers: [],
-  id: nanoid(),
+  id: 'new',
   isFavorite: false,
 };
 
