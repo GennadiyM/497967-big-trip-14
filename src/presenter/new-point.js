@@ -23,7 +23,6 @@ export default class NewPoint {
       return;
     }
 
-
     this._editPointComponent = new EditPointView(this._offersModel.getOffers(), this._destinationsModel.getDestinations());
     this._editPointComponent.setFormSubmitHandler(this._handleFormSubmit);
     this._editPointComponent.setCancelClickHandler(this._handleCancelClick);
