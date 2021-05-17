@@ -7,7 +7,6 @@ const checkDatePoint = (point) => {
 };
 
 export const isPointFuture = (point)  => {
-
   if (checkDatePoint(point)) {
     return true;
   }

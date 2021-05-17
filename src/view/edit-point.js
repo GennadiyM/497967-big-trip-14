@@ -146,14 +146,14 @@ const examplePoint = {
 };
 
 export default class EditPoint extends SmartView {
-  constructor(offersList, destinationsList, point = examplePoint, editMode = false) {
+  constructor(offers, destinations, point = examplePoint, editMode = false) {
     super();
     this._data = EditPoint.parsePointToData(point);
     this._editMode = editMode;
     this._datepickerDateFrom = null;
     this._datepickerDateTo = null;
-    this._offers = offersList.slice();
-    this._destinations = destinationsList.slice();
+    this._offers = offers.slice();
+    this._destinations = destinations.slice();
     this._offersOnActualType = getRequiredValues('type', this._offers, 'offers', this._data.currentType);
     this._closeClickHandler = this._closeClickHandler.bind(this);
     this._formSubmitHandler = this._formSubmitHandler.bind(this);
@@ -192,7 +192,7 @@ export default class EditPoint extends SmartView {
 
   setCancelClickHandler(callback) {
     this._callback.closeClick = callback;
-    this.getElement().querySelector(Selector.DEL).addEventListener('click', this._closeClickHandler);
+    this.getElement().querySelector(Selector.RESET_BTN).addEventListener('click', this._closeClickHandler);
   }
 
   setFormSubmitHandler(callback) {
@@ -202,7 +202,7 @@ export default class EditPoint extends SmartView {
 
   setDeleteClickHandler(callback) {
     this._callback.deleteClick = callback;
-    this.getElement().querySelector(Selector.DEL).addEventListener('click', this._formDeleteClickHandler);
+    this.getElement().querySelector(Selector.RESET_BTN).addEventListener('click', this._formDeleteClickHandler);
   }
 
   restoreHandlers() {

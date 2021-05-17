@@ -21,7 +21,7 @@ export const Selector = {
   OFFERS: '.event__available-offers',
   DATE_FROM: '.event__input--time[name="event-start-time"]',
   DATE_TO: '.event__input--time[name="event-end-time"]',
-  DEL: '.event__reset-btn',
+  RESET_BTN: '.event__reset-btn',
 };
 
 export const UserAction = {
