@@ -308,13 +308,13 @@ export default class EditPoint extends SmartView {
   _dateToChangeHandler([userDate]) {
     this.updateData({
       currentDateTo: userDate,
-    }, true);
+    });
   }
 
   _dateFromChangeHandler([userDate]) {
     this.updateData({
       currentDateFrom: userDate,
-    }, true);
+    });
   }
 
   _getClickOffer(clickOfferName) {
