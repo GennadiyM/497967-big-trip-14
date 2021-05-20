@@ -28,8 +28,35 @@ export const validateDistinationName = (name, destinations) => {
   return destinationNames.includes(name);
 };
 
-
 export const getRequiredValues = (requiredKey, arrayToSearch, requiredDataName, example) => {
   const requiredValues = arrayToSearch.find((item) => item[requiredKey] === example)[requiredDataName].slice();
   return requiredValues;
+};
+
+const getSeconds = (millisec) => {
+  return (millisec / 1000).toFixed(0);
+};
+
+const getTimeElementString = (timeElement, typeElement) => {
+  return timeElement >= 10 ? `${timeElement}${typeElement}` : `0${timeElement}${typeElement}`;
+};
+
+export const getTimeString = (millisec) => {
+  const seconds = getSeconds(millisec);
+  const days = Math.floor(seconds / 60 / 60 / 24);
+  const secondsRestDay = getSeconds(millisec - days * 24 * 60 * 60 * 1000);
+  const hours = Math.floor(secondsRestDay / 60 / 60);
+  const secondsRestHours = getSeconds(secondsRestDay * 1000 - hours * 60 * 60 * 1000);
+  const minutes = Math.floor(secondsRestHours / 60);
+  let totalTime = getTimeElementString(minutes, 'M');
+
+  if (days > 0) {
+    totalTime = `${getTimeElementString(days, 'D')} ${getTimeElementString(hours, 'H')} ${getTimeElementString(minutes, 'M')}`;
+  }
+
+  if (days === 0 && hours > 0) {
+    totalTime = `${getTimeElementString(hours, 'H')} ${getTimeElementString(minutes, 'M')}`;
+  }
+
+  return totalTime;
 };

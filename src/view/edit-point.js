@@ -186,6 +186,10 @@ export default class EditPoint extends SmartView {
   }
 
   setCloseClickHandler(callback) {
+    if (!this._editMode) {
+      return;
+    }
+
     this._callback.closeClick = callback;
     this.getElement().querySelector(Selector.FORM_TOGGLE).addEventListener('click', this._closeClickHandler);
   }
