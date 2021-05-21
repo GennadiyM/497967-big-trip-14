@@ -12,8 +12,9 @@ const Formatter = {
 
 const sortDown = (typeA, typeB) => {
   if (typeA.data < typeB.data) return 1;
-  if (typeA.data == typeB.data) return 0;
   if (typeA.data > typeB.data) return -1;
+
+  return 0;
 };
 
 const getChartSettings = ({labels, data}, text, formatter) => {

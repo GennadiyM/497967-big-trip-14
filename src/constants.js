@@ -12,7 +12,7 @@ export const Selector = {
   MENU: '.trip-controls__navigation',
   FILTER: '.trip-controls__filters',
   PAGE: 'body',
-  PAGE_BODY: '.page-main .page-body__container',
+  PAGE_BODY_CONTAINER: '.page-main .page-body__container',
   TRIP_EVENTS: '.trip-events',
   STATISTICS: '.statistics',
   STATISTICS_MONEY: '.statistics__chart--money',

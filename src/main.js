@@ -33,7 +33,7 @@ destinationsModel.setDestinations(destinations);
 
 const filterModel = new FilterModel();
 
-const pageBody = document.querySelector(Selector.PAGE_BODY);
+const pageBody = document.querySelector(Selector.PAGE_BODY_CONTAINER);
 const tripMainContainer = document.querySelector(Selector.MAIN);
 const tripMenuContainer = tripMainContainer.querySelector(Selector.MENU);
 
