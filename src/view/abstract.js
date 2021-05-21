@@ -1,5 +1,7 @@
 import {createElement} from '../utils/render.js';
 
+const CLASS_HIDDEN = 'hidden';
+
 export default class Abstract {
   constructor() {
     if (new.target === Abstract) {
@@ -24,5 +26,13 @@ export default class Abstract {
 
   removeElement() {
     this._element = null;
+  }
+
+  show() {
+    this.getElement().classList.remove(CLASS_HIDDEN);
+  }
+
+  hide() {
+    this.getElement().classList.add(CLASS_HIDDEN);
   }
 }

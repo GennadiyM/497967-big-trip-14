@@ -978,3 +978,11 @@ main {
 
 .statistics__item:not(:last-child) {
   margin-bottom: 78px; }
+
+.hidden {
+  display: none;
+}
+
+.page-body--hidden .page-body__container::after {
+  display: none;
+}

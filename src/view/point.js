@@ -1,6 +1,7 @@
 import dayjs from 'dayjs';
 import AbstractView from './abstract.js';
 import {Selector} from '../constants.js';
+import {getTimeString} from '../utils/point.js';
 
 const Class = {
   BTN_FAVORITE_ACTIVE: 'event__favorite-btn--active',
@@ -11,35 +12,12 @@ const createPointTemplate = (point) => {
 
   const favoriteClassName = isFavorite ? Class.BTN_FAVORITE_ACTIVE : '';
 
-  const getSeconds = (millisec) => {
-    return (millisec / 1000).toFixed(0);
-  };
-
-  const getTimeElementString = (timeElement, typeElement) => {
-    return timeElement >= 10 ? `${timeElement}${typeElement}` : `0${timeElement}${typeElement}`;
-  };
-
-  const getDurationPoint = () => {
+  const getDurationPoint = (dateFrom, dateTo) => {
     const start = dayjs(dateFrom);
     const end = dayjs(dateTo);
     const millisec = end.diff(start);
-    const seconds = getSeconds(millisec);
-    const days = Math.floor(seconds / 60 / 60 / 24);
-    const secondsRestDay = getSeconds(millisec - days * 24 * 60 * 60 * 1000);
-    const hours = Math.floor(secondsRestDay / 60 / 60);
-    const secondsRestHours = getSeconds(secondsRestDay * 1000 - hours * 60 * 60 * 1000);
-    const minutes = Math.floor(secondsRestHours / 60);
-    let totalTime = getTimeElementString(minutes, 'M');
 
-    if (days > 0) {
-      totalTime = `${getTimeElementString(days, 'D')} ${getTimeElementString(hours, 'H')} ${getTimeElementString(minutes, 'M')}`;
-    }
-
-    if (days === 0 && hours > 0) {
-      totalTime = `${getTimeElementString(hours, 'H')} ${getTimeElementString(minutes, 'M')}`;
-    }
-
-    return totalTime;
+    return getTimeString(millisec);
   };
 
   const getOffersList = () => {
@@ -66,7 +44,7 @@ const createPointTemplate = (point) => {
           &mdash;
           <time class="event__end-time" datetime="${dayjs(dateTo).format('YYYY-MM-DDTHH:mm')}">${dayjs(dateTo).format('HH:mm')}</time>
         </p>
-        <p class="event__duration">${getDurationPoint()}</p>
+        <p class="event__duration">${getDurationPoint(dateFrom, dateTo)}</p>
       </div>
       <p class="event__price">
         &euro;&nbsp;<span class="event__price-value">${basePrice}</span>

@@ -10,12 +10,13 @@ import {sortPointsPrice, sortPointsTime, sortPointDate} from '../utils/point.js'
 import {SortType, UpdateType, UserAction} from '../constants.js';
 
 export default class Travel {
-  constructor(travelContainer, pointsModel, offersModel, destinationsModel, filterModel) {
+  constructor(travelContainer, pointsModel, offersModel, destinationsModel, filterModel, tripEventsComponent) {
     this._pointsModel = pointsModel;
     this._offersModel = offersModel;
     this._destinationsModel = destinationsModel;
     this._filterModel = filterModel;
     this._travelContainer = travelContainer;
+    this._tripEventsComponent = tripEventsComponent;
     this._pointPresenter = {};
     this._currentSortType = SortType.DEFAULT;
 
@@ -36,11 +37,13 @@ export default class Travel {
     this._pointsModel.addObserver(this._handleModelEvent);
     this._filterModel.addObserver(this._handleModelEvent);
 
+    this._tripEventsComponent.show();
     this._renderTravel();
   }
 
   destroy() {
     this._clearTravel(true);
+    this._tripEventsComponent.hide();
 
     this._pointsModel.removeObserver(this._handleModelEvent);
     this._filterModel.removeObserver(this._handleModelEvent);
