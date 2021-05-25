@@ -1,6 +1,3 @@
-export const TYPE_NAMES = ['taxi', 'bus', 'train', 'ship', 'transport', 'drive', 'flight', 'check-in', 'sightseeing', 'restaurant'];
-export const DESTINATION_NAMES = ['Amsterdam', 'Geneva', 'Valencia', 'Hamburg', 'Dakar', 'Casablanca', 'Madrid', 'Rome', 'Surat', 'Tokyo', 'Phoenix', 'Houston'];
-
 export const SortType = {
   DEFAULT: 'sort-day',
   TIME: 'sort-time',
@@ -41,6 +38,7 @@ export const UpdateType = {
   PATCH: 'PATCH',
   MINOR: 'MINOR',
   MAJOR: 'MAJOR',
+  INIT: 'INIT',
 };
 
 export const FilterType = {

@@ -1,39 +1,43 @@
 import dayjs from 'dayjs';
 import flatpickr from 'flatpickr';
-import {TYPE_NAMES, DESTINATION_NAMES, Selector} from '../constants.js';
+import {Selector} from '../constants.js';
 import {validateDistinationName, getRequiredValues} from '../utils/point.js';
 import SmartView from './smart.js';
 
 import '../../node_modules/flatpickr/dist/flatpickr.min.css';
 
-const createEditPointTemplate = (point, destinationsList, offersList, editMode) => {
+const createEditPointTemplate = (point, destinations, offers, actualOffers, editMode) => {
   const {currentType, currentDestination, currentDateFrom, currentDateTo, currentPrice, currentOffers, id} = point;
 
-  const actualDestinationDescription = getRequiredValues('name', destinationsList, 'description', currentDestination);
-  const actualDestinationPictures = getRequiredValues('name', destinationsList, 'pictures', currentDestination);
-  const actualOffers = getRequiredValues('type', offersList, 'offers', currentType);
+  const actualDestinationDescription = getRequiredValues('name', destinations, 'description', currentDestination.name);
+  const actualDestinationPictures = getRequiredValues('name', destinations, 'pictures', currentDestination.name);
+
+  const getCheckedOffers = ({title}) => {
+    const currentOffersTitles = currentOffers.slice().map((offer) => offer.title);
+    return currentOffersTitles.includes(title);
+  };
 
   const getTypePointControls = () => {
-    return TYPE_NAMES.map((name)=> {
+    return offers.slice().map((offer)=> {
       return `<div class="event__type-item">
-        <input id="event-type-${name}-${id}" class="event__type-input  visually-hidden" type="radio" name="event-type" value="${name}" ${name == currentType ? 'checked' : ''}>
-        <label class="event__type-label  event__type-label--${name}" for="event-type-${name}-${id}">${name}</label>
+        <input id="event-type-${offer.type}-${id}" class="event__type-input  visually-hidden" type="radio" name="event-type" value="${offer.type}" ${offer.type == currentType ? 'checked' : ''}>
+        <label class="event__type-label  event__type-label--${offer.type}" for="event-type-${offer.type}-${id}">${offer.type}</label>
       </div>`;
     }).join('');
   };
 
   const getDestinationsNames = () => {
-    return DESTINATION_NAMES.map((name)=> {
-      return `<option value="${name}"></option>`;
+    return destinations.map((destination)=> {
+      return `<option value="${destination.name}"></option>`;
     }).join('');
   };
 
   const getOffersControls = () => {
     return actualOffers.map((offer) => {
-      const offerName = offer.title.split(' ').pop();
+      const offerName = offer.title.split(' ').join('-');
 
       return `<div class="event__offer-selector">
-        <input class="event__offer-checkbox  visually-hidden" id="event-offer-${offerName}-${id}" data-title="${offer.title}" type="checkbox" name="event-offer-${offerName}-${id}" ${currentOffers.includes(offer) ? 'checked' : ''}>
+        <input class="event__offer-checkbox  visually-hidden" id="event-offer-${offerName}-${id}" data-title="${offer.title}" type="checkbox" name="event-offer-${offerName}-${id}" ${getCheckedOffers(offer) ? 'checked' : ''}>
         <label class="event__offer-label" for="event-offer-${offerName}-${id}">
           <span class="event__offer-title">${offer.title}</span>
           &plus;&euro;&nbsp;
@@ -57,7 +61,7 @@ const createEditPointTemplate = (point, destinationsList, offersList, editMode) 
   };
 
   const getDestination = () => {
-    if (!validateDistinationName(currentDestination, destinationsList)) {
+    if (!validateDistinationName(currentDestination.name, destinations)) {
       return '';
     }
 
@@ -100,7 +104,7 @@ const createEditPointTemplate = (point, destinationsList, offersList, editMode) 
           <label class="event__label  event__type-output" for="event-destination-${id}">
             ${currentType}
           </label>
-          <input class="event__input  event__input--destination" id="event-destination-${id}" type="text" name="event-destination" value="${currentDestination}" list="destination-list-${id}">
+          <input class="event__input  event__input--destination" id="event-destination-${id}" type="text" name="event-destination" value="${currentDestination.name}" list="destination-list-${id}">
           <datalist id="destination-list-${id}">
             ${getDestinationsNames()}
           </datalist>
@@ -134,19 +138,21 @@ const createEditPointTemplate = (point, destinationsList, offersList, editMode) 
   </li>`;
 };
 
-const examplePoint = {
-  type: TYPE_NAMES[0],
-  destination: DESTINATION_NAMES[0],
-  dateFrom: dayjs().set('minute', 0).set('second', 0).set('millisecond', 0).toDate(),
-  dateTo: dayjs().set('minute', 0).set('second', 0).set('millisecond', 0).toDate(),
-  basePrice: 0,
-  offers: [],
-  id: 'new',
-  isFavorite: false,
+const getExamplePoint = (offers, destinations) => {
+  return {
+    type: offers[0].type,
+    destination: destinations[0],
+    dateFrom: dayjs().set('minute', 0).set('second', 0).set('millisecond', 0).toDate(),
+    dateTo: dayjs().set('minute', 0).set('second', 0).set('millisecond', 0).toDate(),
+    basePrice: 0,
+    offers: [],
+    id: 'new',
+    isFavorite: false,
+  };
 };
 
 export default class EditPoint extends SmartView {
-  constructor(offers, destinations, point = examplePoint, editMode = false) {
+  constructor(offers, destinations, point = getExamplePoint(offers, destinations), editMode = false) {
     super();
     this._data = EditPoint.parsePointToData(point);
     this._editMode = editMode;
@@ -182,7 +188,7 @@ export default class EditPoint extends SmartView {
   }
 
   getTemplate() {
-    return createEditPointTemplate(this._data, this._destinations, this._offers, this._editMode);
+    return createEditPointTemplate(this._data, this._destinations, this._offers, this._offersOnActualType, this._editMode);
   }
 
   setCloseClickHandler(callback) {
@@ -288,7 +294,7 @@ export default class EditPoint extends SmartView {
       evt.target.setCustomValidity('');
 
       this.updateData({
-        currentDestination: evt.target.value,
+        currentDestination: this._destinations.find((destination) => destination.name === evt.target.value),
       });
     }
   }
@@ -304,7 +310,7 @@ export default class EditPoint extends SmartView {
       evt.target.setCustomValidity('');
 
       this.updateData({
-        currentPrice: evt.target.value,
+        currentPrice: Number(evt.target.value),
       }, true);
     }
   }
@@ -321,20 +327,18 @@ export default class EditPoint extends SmartView {
     });
   }
 
-  _getClickOffer(clickOfferName) {
-    return this._offersOnActualType.find((offer) => offer.title === clickOfferName);
-  }
-
   _offersChangeHandler(evt) {
     evt.preventDefault();
     const clickOfferName = evt.target.dataset.title;
+    const currentOffersTitles = this._data.currentOffers.slice().map((offer) => offer.title);
 
-    const clickOffer = this._getClickOffer(clickOfferName);
-
-    if (this._data.currentOffers.includes(clickOffer)) {
-      delete this._data.currentOffers[this._data.currentOffers.indexOf(clickOffer)];
+    if (currentOffersTitles.includes(clickOfferName)) {
+      const clickOffer = this._data.currentOffers.find((offer) => offer.title === clickOfferName);
+      const index = this._data.currentOffers.indexOf(clickOffer);
+      this._data.currentOffers = [...this._data.currentOffers.slice(0, index), ...this._data.currentOffers.slice(index + 1, this._data.currentOffers.lenght)];
     } else {
-      this._data.currentOffers.push(clickOffer);
+      const addedOffer = this._offersOnActualType.find((offer) => offer.title === clickOfferName);
+      this._data.currentOffers.push(addedOffer);
     }
 
     this.updateData({
