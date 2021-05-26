@@ -1,7 +1,4 @@
-import {Selector} from './constants.js';
-import TripInfoView from './view/trip-info.js';
-import TripRouteView from './view/trip-route.js';
-import TripCostView from './view/trip-cost.js';
+import {Selector, UpdateType} from './constants.js';
 import TripEventsView from './view/trip-events.js';
 import StatisticsView from './view/statistics.js';
 import FilterPresenter from './presenter/filter.js';
@@ -11,25 +8,16 @@ import PointsModel from './model/points.js';
 import OffersModel from './model/offers.js';
 import DestinationsModel from './model/destinations.js';
 import FilterModel from './model/filter.js';
-import {render, RenderPosition} from './utils/render.js';
-import {generatePoints} from './mock/points.js';
-import {generateDestinations} from './mock/destinations.js';
-import {generateOffers} from './mock/offers.js';
+import {render} from './utils/render.js';
+import Api from './api.js';
 
-const POINT_COUNT = 5;
-
-const destinations = generateDestinations();
-const offers = generateOffers();
-const points = generatePoints(offers).slice(0, POINT_COUNT);
+const AUTHORIZATION = 'Basic afasdfq452dsgfs4';
+const END_POINT = 'https://14.ecmascript.pages.academy/big-trip';
+const api = new Api(END_POINT, AUTHORIZATION);
 
 const pointsModel = new PointsModel();
-pointsModel.setPoints(points);
-
 const offersModel = new OffersModel();
-offersModel.setOffers(offers);
-
 const destinationsModel = new DestinationsModel();
-destinationsModel.setDestinations(destinations);
 
 const filterModel = new FilterModel();
 
@@ -41,22 +29,27 @@ const tripEventsComponent = new TripEventsView();
 render(pageBody, tripEventsComponent);
 
 const tripContentContainer = pageBody.querySelector(Selector.CONTENT);
-
 const tripFilterContainer = tripMainContainer.querySelector(Selector.FILTER);
 
-const tripInfoComponent = new TripInfoView();
 const statisticsComponent = new StatisticsView(pointsModel);
-
-render(tripMainContainer, tripInfoComponent, RenderPosition.AFTERBEGIN);
-render(tripInfoComponent, new TripRouteView());
-render(tripInfoComponent, new TripCostView());
-
-const travelPresenter = new TravelPresenter(tripContentContainer, pointsModel, offersModel, destinationsModel, filterModel, tripEventsComponent);
-const siteMenuPresenter = new SiteMenuPresenter(tripMenuContainer, tripMainContainer, travelPresenter, filterModel, statisticsComponent);
-siteMenuPresenter.init();
-
+const travelPresenter = new TravelPresenter(tripContentContainer, pointsModel, offersModel, destinationsModel, filterModel, tripEventsComponent, api);
+const siteMenuPresenter = new SiteMenuPresenter(tripMenuContainer, tripMainContainer, travelPresenter, filterModel, statisticsComponent, pointsModel);
 const filterPresenter = new FilterPresenter(tripFilterContainer, filterModel, pointsModel);
 
-travelPresenter.init();
+siteMenuPresenter.init();
+
+Promise.all([
+  api.getPoints(),
+  api.getDestinations(),
+  api.getOffers(),
+]).then(([points, destinations, offers]) => {
+  destinationsModel.setDestinations(destinations);
+  offersModel.setOffers(offers);
+  pointsModel.setPoints(UpdateType.INIT, points);
+}).catch(() => {
+  pointsModel.setPoints(UpdateType.ERROR, []);
+});
+
 filterPresenter.init();
+travelPresenter.init();
 render(pageBody, statisticsComponent);

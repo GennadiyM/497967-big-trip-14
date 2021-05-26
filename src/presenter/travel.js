@@ -1,8 +1,9 @@
 import SortingView from '../view/sorting.js';
 import EmptyListView from '../view/empty-list.js';
 import PointListView from '../view/point-list.js';
-import EditPointView from '../view/edit-point.js';
-import PointPresenter from './point.js';
+import LoadingView from '../view/loading.js';
+import LoadingErrorView from '../view/loading-error.js';
+import PointPresenter, {State as PointPresenterViewState}  from './point.js';
 import NewPointPresenter from './new-point.js';
 import {render, remove} from '../utils/render.js';
 import {filter} from '../utils/filter.js';
@@ -10,7 +11,7 @@ import {sortPointsPrice, sortPointsTime, sortPointDate} from '../utils/point.js'
 import {SortType, UpdateType, UserAction} from '../constants.js';
 
 export default class Travel {
-  constructor(travelContainer, pointsModel, offersModel, destinationsModel, filterModel, tripEventsComponent) {
+  constructor(travelContainer, pointsModel, offersModel, destinationsModel, filterModel, tripEventsComponent, api) {
     this._pointsModel = pointsModel;
     this._offersModel = offersModel;
     this._destinationsModel = destinationsModel;
@@ -19,11 +20,15 @@ export default class Travel {
     this._tripEventsComponent = tripEventsComponent;
     this._pointPresenter = {};
     this._currentSortType = SortType.DEFAULT;
+    this._isLoading = true;
+    this._isLoadingError = false;
+    this._api = api;
 
     this._sortingComponent = new SortingView(this._currentSortType);
     this._emptyListComponent = new EmptyListView();
+    this._loadingComponent = new LoadingView();
+    this._loadingErrorComponent = new LoadingErrorView();
     this._pointListComponent = new PointListView();
-    this._editPointComponent = new EditPointView(this._offersModel.getOffers(), this._destinationsModel.getDestinations());
 
     this._handleViewAction = this._handleViewAction.bind(this);
     this._handleModelEvent = this._handleModelEvent.bind(this);
@@ -88,6 +93,14 @@ export default class Travel {
     render(this._travelContainer, this._emptyListComponent);
   }
 
+  _renderLoading() {
+    render(this._travelContainer, this._loadingComponent);
+  }
+
+  _renderLoadingError() {
+    render(this._travelContainer, this._loadingErrorComponent);
+  }
+
   _renderSorting() {
     render(this._travelContainer, this._sortingComponent);
     this._sortingComponent.setSortTypeChangeHandler(this._handleSortTypeChange);
@@ -127,6 +140,16 @@ export default class Travel {
   }
 
   _renderTravel() {
+    if (this._isLoading) {
+      this._renderLoading();
+      return;
+    }
+
+    if (this._isLoadingError) {
+      this._renderLoadingError();
+      return;
+    }
+
     if (this._getPoints().length === 0) {
       this._renderEmptyList();
       return;
@@ -139,13 +162,34 @@ export default class Travel {
   _handleViewAction(actionType, updateType, update) {
     switch (actionType) {
       case UserAction.UPDATE_POINT:
-        this._pointsModel.updatePoint(updateType, update);
+        this._pointPresenter[update.id].setViewState(PointPresenterViewState.SAVING);
+        this._api.updatePoint(update)
+          .then((response) => {
+            this._pointsModel.updatePoint(updateType, response);
+          })
+          .catch(() => {
+            this._pointPresenter[update.id].setViewState(PointPresenterViewState.ABORTING);
+          });
         break;
       case UserAction.ADD_POINT:
-        this._pointsModel.addPoint(updateType, update);
+        this._newPointPresenter.setSaving();
+        this._api.addPoint(update)
+          .then((response) => {
+            this._pointsModel.addPoint(updateType, response);
+          })
+          .catch(() => {
+            this._newPointPresenter.setAborting();
+          });
         break;
       case UserAction.DELETE_POINT:
-        this._pointsModel.deletePoint(updateType, update);
+        this._pointPresenter[update.id].setViewState(PointPresenterViewState.DELETING);
+        this._api.deletePoint(update)
+          .then(() => {
+            this._pointsModel.deletePoint(updateType, update);
+          })
+          .catch(() => {
+            this._pointPresenter[update.id].setViewState(PointPresenterViewState.ABORTING);
+          });
         break;
     }
   }
@@ -163,6 +207,16 @@ export default class Travel {
         this._clearTravel(true);
         this._renderTravel();
         break;
+      case UpdateType.INIT:
+        this._isLoading = false;
+        remove(this._loadingComponent);
+        this._renderTravel();
+        break;
+      case UpdateType.ERROR:
+        this._isLoading = false;
+        this._isLoadingError = true;
+        remove(this._loadingComponent);
+        this._renderTravel();
     }
   }
 
