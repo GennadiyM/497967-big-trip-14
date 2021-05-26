@@ -3,14 +3,12 @@ import AbstractView from './abstract.js';
 import {Selector} from '../constants.js';
 import {getTimeString} from '../utils/point.js';
 
-const Class = {
-  BTN_FAVORITE_ACTIVE: 'event__favorite-btn--active',
-};
+const BTN_FAVORITE_ACTIVE_CLASS = 'event__favorite-btn--active';
 
 const createPointTemplate = (point) => {
   const {type, destination, dateFrom, dateTo, basePrice, offers, isFavorite, isDisabled} = point;
 
-  const favoriteClassName = isFavorite ? Class.BTN_FAVORITE_ACTIVE : '';
+  const favoriteClassName = isFavorite ? BTN_FAVORITE_ACTIVE_CLASS : '';
 
   const getDurationPoint = (dateFrom, dateTo) => {
     const start = dayjs(dateFrom);

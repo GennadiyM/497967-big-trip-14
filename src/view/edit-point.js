@@ -6,6 +6,76 @@ import SmartView from './smart.js';
 
 import '../../node_modules/flatpickr/dist/flatpickr.min.css';
 
+const getCheckedOffersTemplate = ({title}, currentOffers) => {
+  const currentOffersTitles = currentOffers.slice().map((offer) => offer.title);
+  return currentOffersTitles.includes(title);
+};
+
+const getDestinationsNamesTemplate = (destinations) => {
+  return destinations.map((destination)=> {
+    return `<option value="${destination.name}"></option>`;
+  }).join('');
+};
+
+const getOffersControlsTemplate = (actualOffers, currentOffers, isDisabled, id) => {
+  return actualOffers.map((offer) => {
+    const offerName = offer.title.split(' ').join('-');
+
+    return `<div class="event__offer-selector">
+      <input class="event__offer-checkbox  visually-hidden" id="event-offer-${offerName}-${id}" data-title="${offer.title}" type="checkbox" name="event-offer-${offerName}-${id}" ${getCheckedOffersTemplate(offer, currentOffers) ? 'checked' : ''} ${isDisabled ? 'disabled' : ''}>
+      <label class="event__offer-label" for="event-offer-${offerName}-${id}">
+        <span class="event__offer-title">${offer.title}</span>
+        &plus;&euro;&nbsp;
+        <span class="event__offer-price">${offer.price}</span>
+      </label>
+    </div>`;
+  }).join('');
+};
+
+const getOffersTemplate = (actualOffers, currentOffers, isDisabled, id) => {
+  if (actualOffers.length === 0) {
+    return '';
+  }
+
+  return `<section class="event__section  event__section--offers">
+    <h3 class="event__section-title  event__section-title--offers">Offers</h3>
+    <div class="event__available-offers">
+      ${getOffersControlsTemplate(actualOffers, currentOffers, isDisabled, id)}
+    </div>
+  </section>`;
+};
+
+const getTypePointControlsTemplate = (offers, id, currentType, isDisabled) => {
+  return offers.slice().map((offer)=> {
+    return `<div class="event__type-item">
+      <input id="event-type-${offer.type}-${id}" class="event__type-input  visually-hidden" type="radio" name="event-type" value="${offer.type}" ${offer.type == currentType ? 'checked' : ''} ${isDisabled ? 'disabled' : ''}>
+      <label class="event__type-label  event__type-label--${offer.type}" for="event-type-${offer.type}-${id}">${offer.type}</label>
+    </div>`;
+  }).join('');
+};
+
+const getDestinationTemplate = (currentDestination, actualDestinationDescription, actualDestinationPictures, destinations) => {
+  if (!validateDistinationName(currentDestination.name, destinations)) {
+    return '';
+  }
+
+  const htmlDescription = actualDestinationDescription !== '' ? `
+    <p class="event__destination-description">${actualDestinationDescription}</p>
+  ` : '';
+
+  const htmlImages = actualDestinationPictures.length === 0 ? '' : `<div class="event__photos-container">
+      <div class="event__photos-tape">
+          ${actualDestinationPictures.map((image) => `<img class="event__photo" src="${image.src}" alt="${image.description}">`).join('')}
+      </div>
+  </div>`;
+
+  return actualDestinationDescription === '' && actualDestinationPictures.lenght === 0 ? '' : `<section class="event__section  event__section--destination">
+    <h3 class="event__section-title  event__section-title--destination">Destination</h3>
+    ${htmlDescription}
+    ${htmlImages}
+  </section>`;
+};
+
 const createEditPointTemplate = (point, destinations, offers, actualOffers, editMode) => {
   const {
     currentType,
@@ -23,76 +93,6 @@ const createEditPointTemplate = (point, destinations, offers, actualOffers, edit
   const actualDestinationDescription = getRequiredValues('name', destinations, 'description', currentDestination.name);
   const actualDestinationPictures = getRequiredValues('name', destinations, 'pictures', currentDestination.name);
 
-  const getCheckedOffers = ({title}) => {
-    const currentOffersTitles = currentOffers.slice().map((offer) => offer.title);
-    return currentOffersTitles.includes(title);
-  };
-
-  const getTypePointControls = () => {
-    return offers.slice().map((offer)=> {
-      return `<div class="event__type-item">
-        <input id="event-type-${offer.type}-${id}" class="event__type-input  visually-hidden" type="radio" name="event-type" value="${offer.type}" ${offer.type == currentType ? 'checked' : ''} ${isDisabled ? 'disabled' : ''}>
-        <label class="event__type-label  event__type-label--${offer.type}" for="event-type-${offer.type}-${id}">${offer.type}</label>
-      </div>`;
-    }).join('');
-  };
-
-  const getDestinationsNames = () => {
-    return destinations.map((destination)=> {
-      return `<option value="${destination.name}"></option>`;
-    }).join('');
-  };
-
-  const getOffersControls = () => {
-    return actualOffers.map((offer) => {
-      const offerName = offer.title.split(' ').join('-');
-
-      return `<div class="event__offer-selector">
-        <input class="event__offer-checkbox  visually-hidden" id="event-offer-${offerName}-${id}" data-title="${offer.title}" type="checkbox" name="event-offer-${offerName}-${id}" ${getCheckedOffers(offer) ? 'checked' : ''} ${isDisabled ? 'disabled' : ''}>
-        <label class="event__offer-label" for="event-offer-${offerName}-${id}">
-          <span class="event__offer-title">${offer.title}</span>
-          &plus;&euro;&nbsp;
-          <span class="event__offer-price">${offer.price}</span>
-        </label>
-      </div>`;
-    }).join('');
-  };
-
-  const getOffers = () => {
-    if (actualOffers.length === 0) {
-      return '';
-    }
-
-    return `<section class="event__section  event__section--offers">
-      <h3 class="event__section-title  event__section-title--offers">Offers</h3>
-      <div class="event__available-offers">
-        ${getOffersControls()}
-      </div>
-    </section>`;
-  };
-
-  const getDestination = () => {
-    if (!validateDistinationName(currentDestination.name, destinations)) {
-      return '';
-    }
-
-    const htmlDescription = actualDestinationDescription !== '' ? `
-      <p class="event__destination-description">${actualDestinationDescription}</p>
-    ` : '';
-
-    const htmlImages = actualDestinationPictures.length === 0 ? '' : `<div class="event__photos-container">
-        <div class="event__photos-tape">
-            ${actualDestinationPictures.map((image) => `<img class="event__photo" src="${image.src}" alt="${image.description}">`).join('')}
-        </div>
-    </div>`;
-
-    return actualDestinationDescription === '' && actualDestinationPictures.lenght === 0 ? '' : `<section class="event__section  event__section--destination">
-      <h3 class="event__section-title  event__section-title--destination">Destination</h3>
-      ${htmlDescription}
-      ${htmlImages}
-    </section>`;
-  };
-
   return `<li class="trip-events__item">
     <form class="event event--edit" action="#" method="post">
       <header class="event__header">
@@ -106,7 +106,7 @@ const createEditPointTemplate = (point, destinations, offers, actualOffers, edit
           <div class="event__type-list">
             <fieldset class="event__type-group">
               <legend class="visually-hidden">Event type</legend>
-              ${getTypePointControls()}
+              ${getTypePointControlsTemplate(offers, id, currentType, isDisabled)}
             </fieldset>
           </div>
         </div>
@@ -117,7 +117,7 @@ const createEditPointTemplate = (point, destinations, offers, actualOffers, edit
           </label>
           <input class="event__input  event__input--destination" id="event-destination-${id}" type="text" name="event-destination" value="${currentDestination.name}" list="destination-list-${id}" ${isDisabled ? 'disabled' : ''}>
           <datalist id="destination-list-${id}">
-            ${getDestinationsNames()}
+            ${getDestinationsNamesTemplate(destinations)}
           </datalist>
         </div>
 
@@ -142,8 +142,8 @@ const createEditPointTemplate = (point, destinations, offers, actualOffers, edit
         ${editMode ? `<button class="event__rollup-btn" type="button" ${isDisabled ? 'disabled' : ''}><span class="visually-hidden">Open event</span></button>` : ''}
       </header>
       <section class="event__details">
-        ${getOffers()}
-        ${getDestination()}
+        ${getOffersTemplate(actualOffers, currentOffers, isDisabled, id)}
+        ${getDestinationTemplate(currentDestination, actualDestinationDescription, actualDestinationPictures, destinations)}
       </section>
     </form>
   </li>`;
@@ -202,6 +202,12 @@ export default class EditPoint extends SmartView {
     return createEditPointTemplate(this._data, this._destinations, this._offers, this._offersOnActualType, this._editMode);
   }
 
+  updateElement() {
+    this._offersOnActualType = getRequiredValues('type', this._offers, 'offers', this._data.currentType);
+
+    super.updateElement();
+  }
+
   setCloseClickHandler(callback) {
     if (!this._editMode) {
       return;
@@ -212,6 +218,10 @@ export default class EditPoint extends SmartView {
   }
 
   setCancelClickHandler(callback) {
+    if (this._editMode) {
+      return;
+    }
+
     this._callback.closeClick = callback;
     this.getElement().querySelector(Selector.RESET_BTN).addEventListener('click', this._closeClickHandler);
   }
@@ -222,6 +232,10 @@ export default class EditPoint extends SmartView {
   }
 
   setDeleteClickHandler(callback) {
+    if (!this._editMode) {
+      return;
+    }
+
     this._callback.deleteClick = callback;
     this.getElement().querySelector(Selector.RESET_BTN).addEventListener('click', this._formDeleteClickHandler);
   }
@@ -231,6 +245,7 @@ export default class EditPoint extends SmartView {
     this._setDatepickers();
     this.setFormSubmitHandler(this._callback.formSubmit);
     this.setCloseClickHandler(this._callback.closeClick);
+    this.setCancelClickHandler(this._callback.closeClick);
     this.setDeleteClickHandler(this._callback.deleteClick);
   }
 

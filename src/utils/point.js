@@ -1,5 +1,11 @@
 import dayjs from 'dayjs';
 
+const MILLISECONDS_PER_SECOND = 1000;
+const HOURS_PER_DAY = 24;
+const TIME_TRESHOLD = 10;
+const SECONDS_PER_MINUTE = 60;
+const MINUTES_PER_HOUR = 60;
+
 export const sortPointsPrice = (eventA, eventB) => {
   return eventB.basePrice - eventA.basePrice;
 };
@@ -34,20 +40,20 @@ export const getRequiredValues = (requiredKey, arrayToSearch, requiredDataName, 
 };
 
 const getSeconds = (millisec) => {
-  return (millisec / 1000).toFixed(0);
+  return (millisec / MILLISECONDS_PER_SECOND).toFixed(0);
 };
 
 const getTimeElementString = (timeElement, typeElement) => {
-  return timeElement >= 10 ? `${timeElement}${typeElement}` : `0${timeElement}${typeElement}`;
+  return timeElement >= TIME_TRESHOLD ? `${timeElement}${typeElement}` : `0${timeElement}${typeElement}`;
 };
 
 export const getTimeString = (millisec) => {
   const seconds = getSeconds(millisec);
-  const days = Math.floor(seconds / 60 / 60 / 24);
-  const secondsRestDay = getSeconds(millisec - days * 24 * 60 * 60 * 1000);
-  const hours = Math.floor(secondsRestDay / 60 / 60);
-  const secondsRestHours = getSeconds(secondsRestDay * 1000 - hours * 60 * 60 * 1000);
-  const minutes = Math.floor(secondsRestHours / 60);
+  const days = Math.floor(seconds / SECONDS_PER_MINUTE / MINUTES_PER_HOUR / HOURS_PER_DAY);
+  const secondsRestDay = getSeconds(millisec - days * HOURS_PER_DAY * MINUTES_PER_HOUR * SECONDS_PER_MINUTE * MILLISECONDS_PER_SECOND);
+  const hours = Math.floor(secondsRestDay / SECONDS_PER_MINUTE / MINUTES_PER_HOUR);
+  const secondsRestHours = getSeconds(secondsRestDay * MILLISECONDS_PER_SECOND - hours * SECONDS_PER_MINUTE * MINUTES_PER_HOUR * MILLISECONDS_PER_SECOND);
+  const minutes = Math.floor(secondsRestHours / MINUTES_PER_HOUR);
   let totalTime = getTimeElementString(minutes, 'M');
 
   if (days > 0) {
