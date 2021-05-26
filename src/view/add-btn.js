@@ -25,7 +25,7 @@ export default class AddBtn extends AbstractView {
   }
 
   destroy() {
-    this.getElement().addEventListener('click', this._btnClickHandler);
+    this.getElement().removeEventListener('click', this._btnClickHandler);
     this.getElement().disabled = true;
   }
 

@@ -1,7 +1,4 @@
 import {Selector, UpdateType} from './constants.js';
-import TripInfoView from './view/trip-info.js';
-import TripRouteView from './view/trip-route.js';
-import TripCostView from './view/trip-cost.js';
 import TripEventsView from './view/trip-events.js';
 import StatisticsView from './view/statistics.js';
 import FilterPresenter from './presenter/filter.js';
@@ -11,7 +8,7 @@ import PointsModel from './model/points.js';
 import OffersModel from './model/offers.js';
 import DestinationsModel from './model/destinations.js';
 import FilterModel from './model/filter.js';
-import {render, RenderPosition} from './utils/render.js';
+import {render} from './utils/render.js';
 import Api from './api.js';
 
 const AUTHORIZATION = 'Basic afasdfq452dsgfs4';
@@ -32,11 +29,14 @@ const tripEventsComponent = new TripEventsView();
 render(pageBody, tripEventsComponent);
 
 const tripContentContainer = pageBody.querySelector(Selector.CONTENT);
-
 const tripFilterContainer = tripMainContainer.querySelector(Selector.FILTER);
 
-const tripInfoComponent = new TripInfoView();
 const statisticsComponent = new StatisticsView(pointsModel);
+const travelPresenter = new TravelPresenter(tripContentContainer, pointsModel, offersModel, destinationsModel, filterModel, tripEventsComponent, api);
+const siteMenuPresenter = new SiteMenuPresenter(tripMenuContainer, tripMainContainer, travelPresenter, filterModel, statisticsComponent, pointsModel);
+const filterPresenter = new FilterPresenter(tripFilterContainer, filterModel, pointsModel);
+
+siteMenuPresenter.init();
 
 Promise.all([
   api.getPoints(),
@@ -46,20 +46,9 @@ Promise.all([
   destinationsModel.setDestinations(destinations);
   offersModel.setOffers(offers);
   pointsModel.setPoints(UpdateType.INIT, points);
-  render(tripMainContainer, tripInfoComponent, RenderPosition.AFTERBEGIN);
-  render(tripInfoComponent, new TripRouteView());
-  render(tripInfoComponent, new TripCostView());
 }).catch(() => {
-  pointsModel.setPoints(UpdateType.INIT, []);
-  destinationsModel.setDestinations([]);
-  offersModel.setOffers([]);
+  pointsModel.setPoints(UpdateType.ERROR, []);
 });
-
-const travelPresenter = new TravelPresenter(tripContentContainer, pointsModel, offersModel, destinationsModel, filterModel, tripEventsComponent, api);
-const siteMenuPresenter = new SiteMenuPresenter(tripMenuContainer, tripMainContainer, travelPresenter, filterModel, statisticsComponent);
-siteMenuPresenter.init();
-
-const filterPresenter = new FilterPresenter(tripFilterContainer, filterModel, pointsModel);
 
 filterPresenter.init();
 travelPresenter.init();

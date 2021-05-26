@@ -6,9 +6,10 @@ import {render} from '../utils/render.js';
 const AFTER_HIDDEN_CLASS = 'page-body--hidden';
 
 export default class SiteMenu {
-  constructor(menuContainer, addBtnContainer, travelPresenter, filterModel, statisticsComponent) {
+  constructor(menuContainer, addBtnContainer, travelPresenter, filterModel, statisticsComponent, pointsModel) {
     this._travelPresenter = travelPresenter;
     this._filterModel = filterModel;
+    this._pointsModel = pointsModel;
     this._menuContainer = menuContainer;
     this._addBtnContainer = addBtnContainer;
     this._statisticsComponent = statisticsComponent;
@@ -22,14 +23,11 @@ export default class SiteMenu {
     this._handleMenuClick = this._handleMenuClick.bind(this);
     this._handleAddBtnClick = this._handleAddBtnClick.bind(this);
     this._handleNewPointFormClose = this._handleNewPointFormClose.bind(this);
+    this._handleModelEvent = this._handleModelEvent.bind(this);
   }
 
   init() {
-    this._menuItemActive = this._menuComponent.getElement().querySelector(`.trip-tabs__btn[data-menu="${MenuItem.POINTS}"]`);
-    this._travelPresenter.setSiteMenuPresenter(this);
-    this._menuComponent.setMenuClickHandler(this._handleMenuClick);
-    this._addBtnComponent.setAddBtnClickHandler(this._handleAddBtnClick);
-    this._addBtnComponent.init();
+    this._pointsModel.addObserver(this._handleModelEvent);
   }
 
   reset() {
@@ -42,6 +40,22 @@ export default class SiteMenu {
     this._menuItemActive.classList.add('trip-tabs__btn--active');
   }
 
+  _handleModelEvent(updateType) {
+    switch (updateType) {
+      case UpdateType.INIT:
+        this._menuItemActive = this._menuComponent.getElement().querySelector(`.trip-tabs__btn[data-menu="${MenuItem.POINTS}"]`);
+        this._travelPresenter.setSiteMenuPresenter(this);
+        this._menuComponent.setMenuClickHandler(this._handleMenuClick);
+        this._addBtnComponent.setAddBtnClickHandler(this._handleAddBtnClick);
+        this._addBtnComponent.init();
+        break;
+      case UpdateType.ERROR:
+        this._addBtnComponent.destroy();
+        this._pageContainer.classList.add(AFTER_HIDDEN_CLASS);
+        break;
+    }
+  }
+
   _handleMenuClick(menuItem) {
     this._setActiveBtn(menuItem);
 
@@ -49,9 +63,9 @@ export default class SiteMenu {
       case MenuItem.POINTS:
         this._statisticsComponent.hide();
         this._filterModel.setFilter(UpdateType.MAJOR, FilterType.EVERYTHING);
-        this._addBtnComponent.getElement().disabled = false;
         this._travelPresenter.destroy();
         this._travelPresenter.init();
+        this._addBtnComponent.init();
         this._pageContainer.classList.remove(AFTER_HIDDEN_CLASS);
         break;
       case MenuItem.STATISTICS:

@@ -2,6 +2,7 @@ import SortingView from '../view/sorting.js';
 import EmptyListView from '../view/empty-list.js';
 import PointListView from '../view/point-list.js';
 import LoadingView from '../view/loading.js';
+import LoadingErrorView from '../view/loading-error.js';
 import PointPresenter, {State as PointPresenterViewState}  from './point.js';
 import NewPointPresenter from './new-point.js';
 import {render, remove} from '../utils/render.js';
@@ -20,11 +21,13 @@ export default class Travel {
     this._pointPresenter = {};
     this._currentSortType = SortType.DEFAULT;
     this._isLoading = true;
+    this._isLoadingError = false;
     this._api = api;
 
     this._sortingComponent = new SortingView(this._currentSortType);
     this._emptyListComponent = new EmptyListView();
     this._loadingComponent = new LoadingView();
+    this._loadingErrorComponent = new LoadingErrorView();
     this._pointListComponent = new PointListView();
 
     this._handleViewAction = this._handleViewAction.bind(this);
@@ -94,6 +97,10 @@ export default class Travel {
     render(this._travelContainer, this._loadingComponent);
   }
 
+  _renderLoadingError() {
+    render(this._travelContainer, this._loadingErrorComponent);
+  }
+
   _renderSorting() {
     render(this._travelContainer, this._sortingComponent);
     this._sortingComponent.setSortTypeChangeHandler(this._handleSortTypeChange);
@@ -135,6 +142,11 @@ export default class Travel {
   _renderTravel() {
     if (this._isLoading) {
       this._renderLoading();
+      return;
+    }
+
+    if (this._isLoadingError) {
+      this._renderLoadingError();
       return;
     }
 
@@ -200,6 +212,11 @@ export default class Travel {
         remove(this._loadingComponent);
         this._renderTravel();
         break;
+      case UpdateType.ERROR:
+        this._isLoading = false;
+        this._isLoadingError = true;
+        remove(this._loadingComponent);
+        this._renderTravel();
     }
   }
 

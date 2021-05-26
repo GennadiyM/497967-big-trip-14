@@ -149,10 +149,10 @@ const createEditPointTemplate = (point, destinations, offers, actualOffers, edit
   </li>`;
 };
 
-const getExamplePoint = (offers, destinations) => {
+const getEmptyPoint = (offers, destinations) => {
   return {
-    type: offers[0].type,
-    destination: destinations[0],
+    type: offers[0].type || '',
+    destination: destinations[0] || '',
     dateFrom: dayjs().set('minute', 0).set('second', 0).set('millisecond', 0).toDate(),
     dateTo: dayjs().set('minute', 0).set('second', 0).set('millisecond', 0).toDate(),
     basePrice: 0,
@@ -163,7 +163,7 @@ const getExamplePoint = (offers, destinations) => {
 };
 
 export default class EditPoint extends SmartView {
-  constructor(offers, destinations, point = getExamplePoint(offers, destinations), editMode = false) {
+  constructor(offers, destinations, point = getEmptyPoint(offers, destinations), editMode = false) {
     super();
     this._data = EditPoint.parsePointToData(point);
     this._editMode = editMode;
