@@ -8,6 +8,12 @@ const Mode = {
   EDITING: 'EDITING',
 };
 
+export const State = {
+  SAVING: 'SAVING',
+  DELETING: 'DELETING',
+  ABORTING: 'ABORTING',
+};
+
 export default class Point {
   constructor(pointListContainer, offersModel, destinationsModel, changeData, changeMode) {
     this._pointListContainer = pointListContainer;
@@ -58,6 +64,37 @@ export default class Point {
 
     remove(prevPoinComponent);
     remove(prevEditPointComponent);
+  }
+
+  setViewState(state) {
+    const resetFormState = () => {
+      this._editPointComponent.updateData({
+        isDisabled: false,
+        isSaving: false,
+        isDeleting: false,
+      });
+    };
+
+    switch (state) {
+      case State.SAVING:
+        if (this._mode === Mode.EDITING) {
+          this._editPointComponent.updateData({
+            isDisabled: true,
+            isSaving: true,
+          });
+        }
+        break;
+      case State.DELETING:
+        this._editPointComponent.updateData({
+          isDisabled: true,
+          isDeleting: true,
+        });
+        break;
+      case State.ABORTING:
+        this._pointComponent.shake(resetFormState);
+        this._editPointComponent.shake(resetFormState);
+        break;
+    }
   }
 
   destroy() {
@@ -116,7 +153,6 @@ export default class Point {
       UpdateType.MINOR,
       point,
     );
-    this._replaceFormToPoint();
   }
 
   _handleFavoriteClick() {

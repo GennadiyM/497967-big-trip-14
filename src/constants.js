@@ -83,5 +83,5 @@ export const ChartSetting = {
   TICKS_FONT_SIZE: 13,
   BAR_THICKNESS: 44,
   MIN_BAR_LENGTH: 100,
-  BAR_HEIGHT: 275,
+  BAR_HEIGHT: 55,
 };
