@@ -12,7 +12,7 @@ const getCheckedOffersTemplate = ({title}, currentOffers) => {
 };
 
 const getDestinationsNamesTemplate = (destinations) => {
-  return destinations.map((destination)=> {
+  return destinations.map((destination) => {
     return `<option value="${destination.name}"></option>`;
   }).join('');
 };
