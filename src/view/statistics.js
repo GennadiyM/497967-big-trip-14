@@ -179,7 +179,7 @@ export default class Statistics extends SmartView {
   _setCharts() {
     const types = new Set();
 
-    this._data.forEach((item)=> {
+    this._data.forEach((item) => {
       types.add(item.type);
     });
 
