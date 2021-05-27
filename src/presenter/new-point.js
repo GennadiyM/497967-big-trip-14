@@ -33,7 +33,7 @@ export default class NewPoint {
   }
 
   destroy() {
-    if (this._editPointComponent == null) {
+    if (this._editPointComponent === null) {
       return;
     }
 

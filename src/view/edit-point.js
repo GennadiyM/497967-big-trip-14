@@ -48,7 +48,7 @@ const getOffersTemplate = (actualOffers, currentOffers, isDisabled, id) => {
 const getTypePointControlsTemplate = (offers, id, currentType, isDisabled) => {
   return offers.slice().map((offer)=> {
     return `<div class="event__type-item">
-      <input id="event-type-${offer.type}-${id}" class="event__type-input  visually-hidden" type="radio" name="event-type" value="${offer.type}" ${offer.type == currentType ? 'checked' : ''} ${isDisabled ? 'disabled' : ''}>
+      <input id="event-type-${offer.type}-${id}" class="event__type-input  visually-hidden" type="radio" name="event-type" value="${offer.type}" ${offer.type === currentType ? 'checked' : ''} ${isDisabled ? 'disabled' : ''}>
       <label class="event__type-label  event__type-label--${offer.type}" for="event-type-${offer.type}-${id}">${offer.type}</label>
     </div>`;
   }).join('');
